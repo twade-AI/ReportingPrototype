@@ -20,7 +20,7 @@ const TopBar = ({ active, onNav, theme, setTheme }) => {
         <nav className="topnav">
           <button className={active === 'home' ? 'tn active' : 'tn'} onClick={() => onNav('home')}>Overview</button>
           <button className={active === 'interim' ? 'tn active' : 'tn'} onClick={() => onNav('interim')}>Report Data</button>
-          <button className="tn" onClick={() => alert('Reflective journal — not in this prototype')}>Reflective Journal</button>
+          <a className="tn" href="https://twade-ai.github.io/ReflectiveJournal/" target="_blank" rel="noopener noreferrer">Reflective Journal</a>
           <button className="tn" onClick={() => alert('Communications — not in this prototype')}>Communications</button>
         </nav>
         <div className="topbar-right">
