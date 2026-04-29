@@ -107,7 +107,7 @@ const HomeScreen = ({ onNav }) => {
       {/* Reflective journal + Upcoming */}
       <div className="grid-2">
         <Card kicker="Pupil-led" title="Reflective journal"
-          action={<button className="btn-ghost" onClick={()=>alert('Opens reflective journal')}>Open →</button>}>
+          action={<a className="btn-ghost" href="https://twade-ai.github.io/ReflectiveJournal/" target="_blank" rel="noopener noreferrer">Open →</a>}>
           <div className="journal-row">
             <div className="journal-stat">
               <div className="journal-num">23</div>
