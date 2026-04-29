@@ -6,6 +6,7 @@ const HomeScreen = ({ onNav }) => {
   const dateStr = today.toLocaleDateString('en-GB', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
   const [updateExpanded, setUpdateExpanded] = useState(false);
   const [activeTicket, setActiveTicket] = useState('yellow');
+  const [timetableOpen, setTimetableOpen] = useState(false);
 
   return (
     <div className="page">
@@ -79,6 +80,18 @@ const HomeScreen = ({ onNav }) => {
         <button className="link-btn" onClick={()=>setUpdateExpanded(e=>!e)}>
           {updateExpanded ? 'Show less' : 'Read full update'}
         </button>
+      </Card>
+
+      {/* Weekly timetable */}
+      <Card kicker="Schedule · summer term" title="Weekly timetable"
+        action={
+          <button className="btn-ghost" onClick={()=>setTimetableOpen(o=>!o)} aria-expanded={timetableOpen}>
+            {timetableOpen ? 'Hide' : 'Show'} →
+          </button>
+        }>
+        {timetableOpen
+          ? <Timetable/>
+          : <div className="tt-collapsed">Six teaching days · 11 periods · colour-coded by subject. Click <strong>Show</strong> to expand.</div>}
       </Card>
 
       {/* Two columns */}
@@ -218,6 +231,44 @@ const AttendanceBars = () => {
       })}
       <line x1={P} x2={W-P} y1={H-P} y2={H-P} stroke="currentColor" opacity=".25"/>
     </svg>
+  );
+};
+
+const Timetable = () => {
+  return (
+    <div className="tt-wrap">
+      <table className="tt">
+        <thead>
+          <tr>
+            <th className="tt-corner">P</th>
+            {TIMETABLE.days.map(d => <th key={d} className="tt-day">{d}</th>)}
+          </tr>
+        </thead>
+        <tbody>
+          {TIMETABLE.periods.map((p, pi) => (
+            <tr key={p.id} className={p.divider ? 'tt-row tt-row-half' : 'tt-row'}>
+              <th className="tt-period">{p.label}</th>
+              {TIMETABLE.cells[pi].map((cell, di) => {
+                if (!cell) return <td key={di} className="tt-empty"/>;
+                const c = SUBJECT_COLORS[cell.subject] || { bg:'#eee', fg:'#222' };
+                return (
+                  <td key={di} className="tt-cell" style={{background:c.bg, color:c.fg}} title={`${cell.subject} · ${cell.code} · ${cell.room}`}>
+                    <div className="tt-subj">{cell.subject}</div>
+                    <div className="tt-code">{cell.code}</div>
+                    <div className="tt-room">{cell.room}</div>
+                  </td>
+                );
+              })}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      <div className="tt-legend">
+        {Object.entries(SUBJECT_COLORS).map(([s,c]) => (
+          <span key={s} className="tt-leg" style={{background:c.bg, color:c.fg}}>{s}</span>
+        ))}
+      </div>
+    </div>
   );
 };
 
