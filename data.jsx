@@ -95,6 +95,50 @@ const ATTENDANCE = {
   weeks: [100,100,98,96,100,95,100,100,98,100,94,98,100,100,100,98],
 };
 
+// Mock Google Classroom assignments — pulled into the To do list
+const TODO_ITEMS = [
+  {
+    id: 'todo-1',
+    title: 'Prep - Research Camus ahead of class presentation',
+    subject: 'Theology and Philosophy',
+    teacher: 'Rev Dr T. Hayes',
+    due: '2026-05-04T20:30:00',
+    description: `Read the introduction to Camus' "The Myth of Sisyphus" (provided as a PDF on Google Classroom) and prepare a 3-minute presentation outlining his concept of the absurd. Bring three discussion questions for the class. Suggested reading: pp. 1–14, with focus on the opening chapter.`,
+  },
+  {
+    id: 'todo-2',
+    title: 'Prep - Mechanics 2 past paper, Section A',
+    subject: 'Mathematics',
+    teacher: 'Dr A. Ramirez',
+    due: '2026-05-05T20:30:00',
+    description: `Complete questions 1–6 of the June 2024 Mechanics 2 paper (uploaded to Classroom). Show full working. Mark your own answers using the mark scheme — annotate where you lost marks and bring queries to Wednesday's lesson.`,
+  },
+  {
+    id: 'todo-3',
+    title: 'Prep - Read Chapter 4 of "Power and the People" and annotate',
+    subject: 'History',
+    teacher: 'Mr P. Donnelly',
+    due: '2026-05-06T20:30:00',
+    description: `Read Chapter 4 (Cold War origins, 1945–1949) and annotate the source extracts on pp. 78–82. Identify provenance, purpose and likely audience for each source. We will use your annotations as the basis for Thursday's source-evaluation exercise.`,
+  },
+  {
+    id: 'todo-4',
+    title: 'Prep - Draft introduction for unseen poetry comparison',
+    subject: 'English',
+    teacher: 'Ms R. Patel',
+    due: '2026-05-08T20:30:00',
+    description: `Using the two poems uploaded to Classroom ("Hawk Roosting" and "The Eagle"), draft a 200–250 word comparative introduction. Focus on a clear thesis statement and a precise framing of the two poets' contrasting perspectives. No need to write the full essay — introduction only.`,
+  },
+  {
+    id: 'todo-5',
+    title: 'Prep - Vocabulary set: «ma région» (Quizlet)',
+    subject: 'French',
+    teacher: 'Mme S. Berthier',
+    due: '2026-05-10T20:30:00',
+    description: `Learn the 40-word vocabulary set on Quizlet (link on Classroom) covering geography, transport and regional identity. Short written test at the start of Monday's lesson. Practise spoken pronunciation using the audio function — this vocabulary will appear in your speaking mock.`,
+  },
+];
+
 const FIXTURES = [
   { date:'Wed 1 May',  type:'Rugby 7s',   detail:'1st XV vs Tonbridge (H)',           kit:'Home',   time:'14:30' },
   { date:'Sat 4 May',  type:'Cross-country', detail:'House Relays \u2014 Big Side',     kit:'House',  time:'10:00' },
@@ -226,6 +270,6 @@ const TUTOR_REPORT = {
 
 Object.assign(window, {
   PUPIL, TICKETS, SUBJECTS, GRADE_VALUES, GRADE_LABELS, GRADE_FULL,
-  TARGET_CODES, TARGETS_MATRIX, ATTENDANCE, FIXTURES, UPCOMING_STUDY, PUPIL_UPDATE,
+  TARGET_CODES, TARGETS_MATRIX, ATTENDANCE, TODO_ITEMS, FIXTURES, UPCOMING_STUDY, PUPIL_UPDATE,
   TUTOR_REPORT, TIMETABLE, SUBJECT_COLORS
 });
