@@ -7,6 +7,8 @@ const HomeScreen = ({ onNav }) => {
   const [updateExpanded, setUpdateExpanded] = useState(false);
   const [activeTicket, setActiveTicket] = useState('yellow');
   const [timetableOpen, setTimetableOpen] = useState(false);
+  const [attendanceOpen, setAttendanceOpen] = useState(false);
+  const [openTodoId, setOpenTodoId] = useState(null);
 
   return (
     <div className="page">
@@ -106,16 +108,35 @@ const HomeScreen = ({ onNav }) => {
           </div>
         </Card>
 
-        <Card kicker="Attendance · last 16 weeks" title="Recent attendance"
-          action={<span className="big-stat">{ATTENDANCE.overall}<span className="pct">%</span></span>}>
-          <AttendanceBars/>
-          <div className="att-legend">
-            <span><i className="att-sw" style={{background:'#1f9d6b'}}/> Authorised abs. {ATTENDANCE.authorisedAbsence}%</span>
-            <span><i className="att-sw" style={{background:'#f5b800'}}/> Late {ATTENDANCE.late}%</span>
-            <span><i className="att-sw" style={{background:'#c33'}}/> Unauth. {ATTENDANCE.unauthorisedAbsence}%</span>
-          </div>
+        <Card kicker="Google Classroom · synced" title="To do List"
+          action={<span className="meta-chip">{TODO_ITEMS.length} due this week</span>}>
+          <TodoList items={TODO_ITEMS} openId={openTodoId} setOpenId={setOpenTodoId}/>
         </Card>
       </div>
+
+      {/* Attendance — collapsible */}
+      <Card kicker="Attendance · last 16 weeks" title="Recent attendance"
+        action={
+          <div className="att-action">
+            <span className="big-stat">{ATTENDANCE.overall}<span className="pct">%</span></span>
+            <button className="btn-ghost" onClick={()=>setAttendanceOpen(o=>!o)} aria-expanded={attendanceOpen}>
+              {attendanceOpen ? 'Hide' : 'Show'} →
+            </button>
+          </div>
+        }>
+        {attendanceOpen ? (
+          <>
+            <AttendanceBars/>
+            <div className="att-legend">
+              <span><i className="att-sw" style={{background:'#1f9d6b'}}/> Authorised abs. {ATTENDANCE.authorisedAbsence}%</span>
+              <span><i className="att-sw" style={{background:'#f5b800'}}/> Late {ATTENDANCE.late}%</span>
+              <span><i className="att-sw" style={{background:'#c33'}}/> Unauth. {ATTENDANCE.unauthorisedAbsence}%</span>
+            </div>
+          </>
+        ) : (
+          <div className="tt-collapsed">Overall {ATTENDANCE.overall}% across the last 16 weeks. Click <strong>Show</strong> to see the weekly breakdown.</div>
+        )}
+      </Card>
 
       {/* Reflective journal + Upcoming */}
       <div className="grid-2">
@@ -272,4 +293,41 @@ const Timetable = () => {
   );
 };
 
-Object.assign(window, { HomeScreen });
+const TodoList = ({ items, openId, setOpenId }) => {
+  const fmtDue = (iso) => {
+    const d = new Date(iso);
+    const day = d.toLocaleDateString('en-GB', { weekday:'short', day:'numeric', month:'short' });
+    const time = d.toLocaleTimeString('en-GB', { hour:'2-digit', minute:'2-digit', hour12:false });
+    return `${day} · ${time}`;
+  };
+  return (
+    <ul className="todo-list">
+      {items.map(item => {
+        const isOpen = openId === item.id;
+        return (
+          <li key={item.id} className={`todo-row ${isOpen?'open':''}`}>
+            <button className="todo-head" onClick={()=>setOpenId(isOpen ? null : item.id)} aria-expanded={isOpen}>
+              <div className="todo-main">
+                <div className="todo-title">{item.title}</div>
+                <div className="todo-subj">{item.subject} · {item.teacher}</div>
+              </div>
+              <div className="todo-due">
+                <div className="todo-due-label">Due</div>
+                <div className="todo-due-when">{fmtDue(item.due)}</div>
+              </div>
+              <span className={`todo-chev ${isOpen?'open':''}`} aria-hidden>▾</span>
+            </button>
+            {isOpen && (
+              <div className="todo-body">
+                <div className="todo-body-kicker">Task description</div>
+                <p>{item.description}</p>
+              </div>
+            )}
+          </li>
+        );
+      })}
+    </ul>
+  );
+};
+
+Object.assign(window, { HomeScreen, TodoList });
