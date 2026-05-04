@@ -278,7 +278,7 @@ const InterimScreen = ({ onNav }) => {
           <FocusCard
             key={s.id}
             title={s.name}
-            subtitle={`Attainment ${s.attainment[5]} · target ${s.attainmentTarget}`}
+            subtitle={`Attainment ${s.attainment[5]} · Target ${s.attainmentTarget}`}
             stats={focusStats([s.id])}
             topN={3}
             active={subjectId === s.id}
@@ -514,7 +514,7 @@ const ChipClouds = ({ stats }) => {
       <div className={`cloud cloud-${type}`}>
         <div className="cloud-head">
           <div>
-            <div className="cloud-kicker">{type === 'target' ? 'Target' : 'Going well'}</div>
+            <div className="cloud-kicker">{type === 'target' ? 'Areas to grow' : 'Going well'}</div>
             <div className="cloud-title">
               {type === 'target' ? 'Targets set most often' : 'Praise awarded most often'}
             </div>
