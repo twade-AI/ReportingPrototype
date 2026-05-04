@@ -514,7 +514,7 @@ const ChipClouds = ({ stats }) => {
       <div className={`cloud cloud-${type}`}>
         <div className="cloud-head">
           <div>
-            <div className="cloud-kicker">{type === 'target' ? 'Areas to grow' : 'Going well'}</div>
+            <div className="cloud-kicker">{type === 'target' ? 'Target' : 'Going well'}</div>
             <div className="cloud-title">
               {type === 'target' ? 'Targets set most often' : 'Praise awarded most often'}
             </div>
