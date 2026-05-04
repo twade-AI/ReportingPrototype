@@ -254,6 +254,108 @@ const TIMETABLE = {
   ],
 };
 
+// Praise codes — used to surface "what's going well" per reporting cycle
+const PRAISE_CODES = [
+  { code:'PD', label:'Your participation in class discussions is excellent' },
+  { code:'LI', label:'You listen to and act on feedback effectively, using it to help you improve' },
+  { code:'SK', label:'You have made excellent progress in developing your practical skills' },
+  { code:'CE', label:'You collaborate very effectively with other pupils during lessons' },
+  { code:'IN', label:'You demonstrate great initiative to engage with the subject beyond the standard curriculum' },
+  { code:'RS', label:'You demonstrate great resilience when completing challenging tasks' },
+  { code:'EW', label:'Your essay writing demonstrates the ability to construct coherent and persuasive arguments' },
+  { code:'DS', label:'You proactively seek support when needed and/or make excellent use of departmental support outside of lessons' },
+  { code:'WP', label:'Your work is well-presented and/or communicated' },
+  { code:'CK', label:'You show commitment to consolidating knowledge between lessons' },
+  { code:'SM', label:'You do a good job of supporting your working memory by breaking tasks into smaller steps or revisiting instructions' },
+  { code:'SA', label:'You display impressive sustained attention and focus throughout tasks or lessons' },
+  { code:'AA', label:'You show cognitive flexibility by adapting your approach thoughtfully when tasks require it' },
+];
+
+// Per-subject, per-reporting-cycle: target code (from TARGET_CODES) and
+// 1–3 praise codes (from PRAISE_CODES) describing what's going well.
+const REPORTING_DETAILS = {
+  maths:   [
+    { target:'TM', praise:['WP','SA'] },
+    { target:'AC', praise:['CK','WP'] },
+    { target:'WR', praise:['IN','SA'] },
+    { target:'TM', praise:['RS','SA'] },
+    { target:'RE', praise:['RS','AA'] },
+    { target:'CS', praise:['IN','RS','SA'] },
+  ],
+  science: [
+    { target:'AC', praise:['WP','SA'] },
+    { target:'PR', praise:['SK','WP'] },
+    { target:'CS', praise:['CK','SK'] },
+    { target:'TM', praise:['LI','RS'] },
+    { target:'DW', praise:['EW','WP'] },
+    { target:'RE', praise:['SK','AA'] },
+  ],
+  english: [
+    { target:'DW', praise:['EW','PD'] },
+    { target:'AC', praise:['EW','WP'] },
+    { target:'PR', praise:['EW','SM'] },
+    { target:'WR', praise:['IN','EW'] },
+    { target:'FE', praise:['LI','CE'] },
+    { target:'PR', praise:['EW','LI'] },
+  ],
+  french:  [
+    { target:'PA', praise:['CE','PD'] },
+    { target:'OR', praise:['CK','IN'] },
+    { target:'AC', praise:['LI','WP'] },
+    { target:'OR', praise:['RS','PD'] },
+    { target:'RE', praise:['RS','AA'] },
+    { target:'SS', praise:['DS','LI'] },
+  ],
+  theo:    [
+    { target:'WR', praise:['PD','IN'] },
+    { target:'DW', praise:['EW','PD'] },
+    { target:'PA', praise:['PD','EW'] },
+    { target:'PR', praise:['EW','WP'] },
+    { target:'FE', praise:['LI','EW'] },
+    { target:'DW', praise:['EW','AA'] },
+  ],
+  history: [
+    { target:'WR', praise:['IN','EW'] },
+    { target:'AC', praise:['WP','EW'] },
+    { target:'DW', praise:['EW','AA'] },
+    { target:'PR', praise:['EW','WP'] },
+    { target:'TM', praise:['SA','SM'] },
+    { target:'FE', praise:['LI','EW'] },
+  ],
+  drama:   [
+    { target:'GW', praise:['CE','SK'] },
+    { target:'PA', praise:['SK','PD'] },
+    { target:'PS', praise:['SK','CE'] },
+    { target:'RE', praise:['RS','AA'] },
+    { target:'FE', praise:['LI','CE'] },
+    { target:'PS', praise:['SK','LI'] },
+  ],
+  geog:    [
+    { target:'AC', praise:['WP','SK'] },
+    { target:'CS', praise:['CK','IN'] },
+    { target:'DW', praise:['EW','SK'] },
+    { target:'PR', praise:['PD','EW'] },
+    { target:'WR', praise:['IN','AA'] },
+    { target:'AC', praise:['EW','LI'] },
+  ],
+  cs:      [
+    { target:'WR', praise:['IN','SA'] },
+    { target:'OR', praise:['IN','SM'] },
+    { target:'TM', praise:['RS','AA'] },
+    { target:'CS', praise:['IN','WP'] },
+    { target:'WR', praise:['IN','CE'] },
+    { target:'CS', praise:['SA','WP','RS'] },
+  ],
+  sport:   [
+    { target:'PS', praise:['SK','RS'] },
+    { target:'GW', praise:['CE','SK'] },
+    { target:'CS', praise:['IN','WP'] },
+    { target:'PA', praise:['SK','CE'] },
+    { target:'RE', praise:['RS','CE'] },
+    { target:'PS', praise:['SK','LI'] },
+  ],
+};
+
 const TUTOR_REPORT = {
   author: 'Mrs A. Carrington',
   role: 'Tutor · 11 Le Bas',
@@ -270,6 +372,7 @@ const TUTOR_REPORT = {
 
 Object.assign(window, {
   PUPIL, TICKETS, SUBJECTS, GRADE_VALUES, GRADE_LABELS, GRADE_FULL,
-  TARGET_CODES, TARGETS_MATRIX, ATTENDANCE, TODO_ITEMS, FIXTURES, UPCOMING_STUDY, PUPIL_UPDATE,
+  TARGET_CODES, TARGETS_MATRIX, PRAISE_CODES, REPORTING_DETAILS,
+  ATTENDANCE, TODO_ITEMS, FIXTURES, UPCOMING_STUDY, PUPIL_UPDATE,
   TUTOR_REPORT, TIMETABLE, SUBJECT_COLORS
 });
