@@ -667,6 +667,76 @@ button { font-family: inherit; }
   .timeline-dot, .timeline-key-dot { width: 6px; height: 6px; }
 }
 
+/* Combined chip cloud — visual summary of targets vs praise across all subjects */
+.clouds-wrap {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
+  margin-bottom: 18px;
+}
+.cloud {
+  background: var(--paper); border: 1px solid var(--rule);
+  border-radius: 12px; padding: 16px;
+  display: flex; flex-direction: column; gap: 14px;
+}
+.cloud-target { border-left: 3px solid var(--magenta); }
+.cloud-praise { border-left: 3px solid #1f9d6b; }
+.cloud-head {
+  display: flex; justify-content: space-between; align-items: flex-start;
+  gap: 10px; padding-bottom: 10px; border-bottom: 1px solid var(--rule);
+}
+.cloud-kicker {
+  font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
+  margin-bottom: 4px;
+}
+.cloud-target .cloud-kicker { color: var(--magenta); }
+.cloud-praise .cloud-kicker { color: #1f9d6b; }
+.cloud-title { font-size: 14px; font-weight: 700; color: var(--ink); }
+.cloud-meta {
+  font-size: 11px; color: var(--ink-3);
+  font-family: 'JetBrains Mono', monospace;
+  white-space: nowrap;
+}
+.cloud-chips {
+  display: flex; flex-wrap: wrap; gap: 8px;
+  align-items: center; justify-content: center;
+  padding: 14px 6px; min-height: 140px;
+}
+.cloud-chip {
+  font-family: 'JetBrains Mono', monospace; font-weight: 700;
+  border-radius: 8px; line-height: 1;
+  display: inline-flex; align-items: baseline; gap: 6px;
+  cursor: help; transition: transform .15s, box-shadow .15s;
+  border: 1px solid transparent;
+}
+.cloud-chip:hover {
+  transform: translateY(-1px) scale(1.04);
+  box-shadow: 0 4px 12px rgba(0,0,0,.10);
+  z-index: 1;
+}
+.cloud-chip-target {
+  background: rgba(155, 24, 68, var(--chip-opacity, .25));
+  color: var(--magenta);
+  border-color: rgba(155, 24, 68, .3);
+}
+.cloud-chip-target.cloud-chip-strong {
+  background: var(--magenta); color: #fff; border-color: transparent;
+}
+.cloud-chip-praise {
+  background: rgba(31, 157, 107, var(--chip-opacity, .25));
+  color: #15734f;
+  border-color: rgba(31, 157, 107, .3);
+}
+.cloud-chip-praise.cloud-chip-strong {
+  background: #1f9d6b; color: #fff; border-color: transparent;
+}
+.cloud-count {
+  font-family: 'Inter', sans-serif; font-size: .68em; font-weight: 600;
+  opacity: .75;
+}
+
+@media (max-width: 720px) {
+  .clouds-wrap { grid-template-columns: 1fr; }
+}
+
 /* Focus cards — replaces the old subject × target heatmap */
 .focus-card {
   background: var(--paper); border: 1px solid var(--rule);

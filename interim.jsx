@@ -201,19 +201,14 @@ const InterimScreen = ({ onNav }) => {
       }>
         <p className="card-blurb">
           {focusView === 'cards' ?
-          <>Each card shows the targets most often set and the praise codes most often awarded — a quick read on where {PUPIL.firstName} is being stretched and where he's thriving. Click a subject card to load it into the graph above.</> :
+          <>The two clouds below combine every subject and every cycle: <strong>Areas to grow</strong> shows the most-set target codes and <strong>Going well</strong> shows the most-awarded praise codes. Bigger, bolder chips appear more often. Hover any chip for the full description, or click a subject card lower down to focus the graph.</> :
 
           <>One row per subject across the six reporting cycles (R1 → R6). The chip in each cell is the target set that cycle; dots underneath are the praise codes awarded. Click any row to load that subject into the graph above.</>
           }
         </p>
         {focusView === 'cards' ?
         <>
-            <FocusCard
-            combined
-            title="All subjects"
-            subtitle="Across all 10 subjects"
-            stats={focusStats(SUBJECTS.map((s) => s.id))}
-            topN={5} />
+            <ChipClouds stats={focusStats(SUBJECTS.map((s) => s.id))} />
 
             <div className="focus-grid">
               {SUBJECTS.map((s) =>
@@ -437,6 +432,53 @@ const FocusCard = ({ title, subtitle, stats, topN = 3, combined = false, active 
     return <button type="button" className={className} onClick={onSelect}>{Inner}</button>;
   }
   return <div className={className}>{Inner}</div>;
+};
+
+const ChipClouds = ({ stats }) => {
+  const renderCloud = (codes, type, lookup) => {
+    const max = codes.length ? codes[0].count : 1;
+    return (
+      <div className={`cloud cloud-${type}`}>
+        <div className="cloud-head">
+          <div>
+            <div className="cloud-kicker">{type === 'target' ? 'Areas to grow' : 'Going well'}</div>
+            <div className="cloud-title">
+              {type === 'target' ? 'Targets set most often' : 'Praise awarded most often'}
+            </div>
+          </div>
+          <div className="cloud-meta">{codes.length} codes · {codes.reduce((s, c) => s + c.count, 0)} occurrences</div>
+        </div>
+        <div className="cloud-chips">
+          {codes.map(({ code, count }) => {
+            const intensity = count / max;
+            const fontSize = 11 + intensity * 16;
+            const padV = 4 + intensity * 6;
+            const padH = 8 + intensity * 10;
+            const isStrong = intensity > 0.55;
+            return (
+              <span
+                key={code}
+                className={`cloud-chip cloud-chip-${type} ${isStrong ? 'cloud-chip-strong' : ''} code-tip`}
+                data-desc={lookup(code)}
+                style={{
+                  fontSize: `${fontSize}px`,
+                  padding: `${padV}px ${padH}px`,
+                  '--chip-opacity': (0.18 + intensity * 0.82).toFixed(3),
+                }}>
+                {code}<span className="cloud-count">{count}</span>
+              </span>);
+
+          })}
+        </div>
+      </div>);
+
+  };
+  return (
+    <div className="clouds-wrap">
+      {renderCloud(stats.targets, 'target', targetLabel)}
+      {renderCloud(stats.praise, 'praise', praiseLabel)}
+    </div>);
+
 };
 
 const TimelineView = ({ subjectId, setSubjectId }) => {
