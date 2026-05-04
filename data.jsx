@@ -29,26 +29,31 @@ const TICKETS = {
   ]},
 };
 
+// Each subject carries:
+//   grades         — ATL (Attitude to Learning) in the classroom (R1–R6)
+//   gradesOutside  — ATL outside the classroom (homework/prep) (R1–R6)
+//   attainment     — numeric attainment grade per cycle (4–9)
+//   attainmentTarget — single numeric target (6–9), mostly stable across subjects
 const SUBJECTS = [
-  { id:'maths',   name:'Maths',                  teacher:'Dr A. Ramirez',     grades:['ME','ME','EE','EE','EE','E' ], target:'E',  effort:1, attainment:1 },
-  { id:'science', name:'Science',                teacher:'Mrs J. Holloway',   grades:['ME','EE','EE','EE','EE','EE'], target:'EE', effort:1, attainment:1 },
-  { id:'english', name:'English',                teacher:'Ms R. Patel',       grades:['ME','ME','ME','ME','EE','EE'], target:'EE', effort:2, attainment:2 },
-  { id:'french',  name:'French',                 teacher:'Mme S. Berthier',   grades:['NI','ME','ME','ME','ME','EE'], target:'EE', effort:2, attainment:2 },
-  { id:'theo',    name:'Theology & Philosophy',  teacher:'Rev Dr T. Hayes',   grades:['ME','ME','EE','EE','EE','EE'], target:'EE', effort:1, attainment:1 },
-  { id:'history', name:'History',                teacher:'Mr P. Donnelly',    grades:['ME','EE','ME','EE','EE','EE'], target:'EE', effort:1, attainment:2 },
-  { id:'drama',   name:'Drama',                  teacher:'Miss L. Hollis',    grades:['ME','ME','ME','ME','ME','ME'], target:'ME', effort:2, attainment:2 },
-  { id:'geog',    name:'Geography',              teacher:'Mr K. Whitford',    grades:['ME','ME','EE','ME','EE','EE'], target:'EE', effort:1, attainment:2 },
-  { id:'cs',      name:'Computer Science',       teacher:'Mr D. Okafor',      grades:['EE','EE','EE','E', 'E', 'E' ], target:'E',  effort:1, attainment:1 },
-  { id:'sport',   name:'Sports Science',         teacher:'Mr T. Bramwell',    grades:['ME','ME','EE','EE','EE','EE'], target:'EE', effort:1, attainment:1 },
+  { id:'maths',   name:'Maths',                  teacher:'Dr A. Ramirez',     grades:['ME','ME','EE','EE','EE','E' ], gradesOutside:['ME','EE','EE','EE','EE','E' ], target:'E',  effort:1, attainment:[6,7,7,8,8,9], attainmentTarget:9 },
+  { id:'science', name:'Science',                teacher:'Mrs J. Holloway',   grades:['ME','EE','EE','EE','EE','EE'], gradesOutside:['NI','ME','ME','EE','EE','EE'], target:'EE', effort:1, attainment:[6,7,7,8,8,8], attainmentTarget:8 },
+  { id:'english', name:'English',                teacher:'Ms R. Patel',       grades:['ME','ME','ME','ME','EE','EE'], gradesOutside:['ME','ME','ME','EE','EE','EE'], target:'EE', effort:2, attainment:[5,5,6,6,7,7], attainmentTarget:8 },
+  { id:'french',  name:'French',                 teacher:'Mme S. Berthier',   grades:['NI','ME','ME','ME','ME','EE'], gradesOutside:['NI','NI','ME','ME','ME','EE'], target:'EE', effort:2, attainment:[4,5,5,6,6,7], attainmentTarget:7 },
+  { id:'theo',    name:'Theology & Philosophy',  teacher:'Rev Dr T. Hayes',   grades:['ME','ME','EE','EE','EE','EE'], gradesOutside:['ME','ME','EE','EE','EE','EE'], target:'EE', effort:1, attainment:[6,6,7,7,8,8], attainmentTarget:8 },
+  { id:'history', name:'History',                teacher:'Mr P. Donnelly',    grades:['ME','EE','ME','EE','EE','EE'], gradesOutside:['NI','ME','ME','EE','EE','EE'], target:'EE', effort:1, attainment:[6,7,6,7,8,8], attainmentTarget:8 },
+  { id:'drama',   name:'Drama',                  teacher:'Miss L. Hollis',    grades:['ME','ME','ME','ME','ME','ME'], gradesOutside:['ME','ME','ME','ME','EE','ME'], target:'ME', effort:2, attainment:[5,5,6,5,6,6], attainmentTarget:6 },
+  { id:'geog',    name:'Geography',              teacher:'Mr K. Whitford',    grades:['ME','ME','EE','ME','EE','EE'], gradesOutside:['ME','EE','EE','ME','EE','EE'], target:'EE', effort:1, attainment:[6,6,7,6,7,7], attainmentTarget:8 },
+  { id:'cs',      name:'Computer Science',       teacher:'Mr D. Okafor',      grades:['EE','EE','EE','E', 'E', 'E' ], gradesOutside:['EE','EE','EE','EE','E', 'E' ], target:'E',  effort:1, attainment:[7,8,8,9,9,9], attainmentTarget:9 },
+  { id:'sport',   name:'Sports Science',         teacher:'Mr T. Bramwell',    grades:['ME','ME','EE','EE','EE','EE'], gradesOutside:['ME','ME','EE','EE','EE','EE'], target:'EE', effort:1, attainment:[6,6,7,7,8,8], attainmentTarget:8 },
 ];
 
 const GRADE_VALUES = { 'NI':1, 'ME':2, 'EE':3, 'E':4 };
 const GRADE_LABELS = ['NI','ME','EE','E'];
 const GRADE_FULL = {
-  'NI':'Needs Improvement',
-  'ME':'Meeting Expected',
-  'EE':'Exceeding Expected',
-  'E' :'Exceeding'
+  'NI':'Needs improvement',
+  'ME':'Meeting expectations',
+  'EE':'Exceeding expectations',
+  'E' :'Exceptional'
 };
 
 // Target codes from user

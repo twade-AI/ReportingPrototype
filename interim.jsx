@@ -8,22 +8,34 @@ const InterimScreen = ({ onNav }) => {
   const [activeTicket, setActiveTicket] = useStateI('yellow');
   const [attendanceOpen, setAttendanceOpen] = useStateI(false);
   const [focusView, setFocusView] = useStateI('cards');
+  // 'atl-in' | 'atl-out' | 'atl-combined' | 'attainment' | 'overlay'
+  const [attView, setAttView] = useStateI('atl-in');
 
   const subj = subjectId === 'all'
     ? (() => {
-        const avgs = [];
+        const inAvgs = [];
+        const outAvgs = [];
+        const attAvgs = [];
         for (let i = 0; i < 6; i++) {
-          avgs.push(SUBJECTS.reduce((s, sub) => s + GRADE_VALUES[sub.grades[i]], 0) / SUBJECTS.length);
+          inAvgs.push(SUBJECTS.reduce((s, sub) => s + GRADE_VALUES[sub.grades[i]], 0) / SUBJECTS.length);
+          outAvgs.push(SUBJECTS.reduce((s, sub) => s + GRADE_VALUES[sub.gradesOutside[i]], 0) / SUBJECTS.length);
+          attAvgs.push(SUBJECTS.reduce((s, sub) => s + sub.attainment[i], 0) / SUBJECTS.length);
         }
         const nearestGrade = (avg) => GRADE_LABELS.reduce((best, lab) =>
           Math.abs(GRADE_VALUES[lab] - avg) < Math.abs(GRADE_VALUES[best] - avg) ? lab : best, GRADE_LABELS[0]);
+        const attTargetAvg = SUBJECTS.reduce((s, sub) => s + sub.attainmentTarget, 0) / SUBJECTS.length;
         return {
           id: 'all',
           name: 'All subjects',
           teacher: 'Average across all 10 subjects',
           target: 'EE',
-          grades: avgs.map(nearestGrade),
-          _avgs: avgs,
+          grades: inAvgs.map(nearestGrade),
+          gradesOutside: outAvgs.map(nearestGrade),
+          _avgs: inAvgs,
+          _outAvgs: outAvgs,
+          attainment: attAvgs,
+          attainmentTarget: attTargetAvg,
+          _attAvgs: attAvgs,
         };
       })()
     : SUBJECTS.find((s) => s.id === subjectId);
@@ -44,8 +56,8 @@ const InterimScreen = ({ onNav }) => {
         </div>
         <div className="legend-grid">
           {GRADE_LABELS.slice().reverse().map((g) =>
-          <div key={g} className="leg-box">
-              <div className="leg-box-code">{g}</div>
+          <div key={g} className={`leg-box leg-box-${g}`}>
+              <div className={`leg-box-code grade-${g}`}>{g}</div>
               <div className="leg-box-label">{GRADE_FULL[g]}</div>
             </div>
           )}
@@ -151,13 +163,18 @@ const InterimScreen = ({ onNav }) => {
       <Card kicker="All subjects · R6" title="Latest grade snapshot">
         <div className="snapshot">
           {SUBJECTS.map((s) => {
-            const g = s.grades[5];
-            const at = GRADE_VALUES[g] >= GRADE_VALUES[s.target];
+            const att = s.attainment[5];
+            const at = att >= s.attainmentTarget;
             return (
               <button key={s.id} className={`snap ${subjectId === s.id ? 'snap-active' : ''}`} onClick={() => setSubjectId(s.id)}>
                 <div className="snap-name">{s.name}</div>
-                <div className={`snap-grade ${at ? 'g-ok' : 'g-warn'}`}>{g}</div>
-                <div className="snap-target">target {s.target}</div>
+                <div className={`snap-grade ${at ? 'g-ok' : 'g-warn'}`}>{att}</div>
+                <div className="snap-target">target {s.attainmentTarget}</div>
+                <div className="snap-atl">
+                  <GradeBadge code={s.grades[5]} />
+                  <span className="snap-atl-sep">·</span>
+                  <GradeBadge code={s.gradesOutside[5]} />
+                </div>
               </button>);
 
           })}
@@ -176,19 +193,66 @@ const InterimScreen = ({ onNav }) => {
       }>
         <div className="subj-meta">
           <div className="subj-pill"><span className="lab">Teacher</span><span className="val">{subj.teacher}</span></div>
-          <div className="subj-pill"><span className="lab">Target grade</span><span className="val val-target">{subj.target}</span></div>
-          <div className="subj-pill"><span className="lab">Latest</span><span className="val">{subj._avgs ? subj._avgs[5].toFixed(2) + ' (≈' + subj.grades[5] + ')' : subj.grades[5]}</span></div>
+          <div className="subj-pill"><span className="lab">ATL · classroom</span><span className="val"><GradeBadge code={subj.grades[5]} /></span></div>
+          <div className="subj-pill"><span className="lab">ATL · outside</span><span className="val"><GradeBadge code={subj.gradesOutside[5]} /></span></div>
+          <div className="subj-pill"><span className="lab">Latest attainment</span><span className="val">{subj._attAvgs ? subj.attainment[5].toFixed(2) : subj.attainment[5]}</span></div>
+          <div className="subj-pill"><span className="lab">Attainment target</span><span className="val val-target">{subj._attAvgs ? subj.attainmentTarget.toFixed(1) : subj.attainmentTarget}</span></div>
           <div className="subj-pill"><span className="lab">Trend</span><span className="val">
-            {(subj._avgs ? subj._avgs[5] : GRADE_VALUES[subj.grades[5]]) > (subj._avgs ? subj._avgs[0] : GRADE_VALUES[subj.grades[0]]) ? '↗ Improving' :
-              (subj._avgs ? subj._avgs[5] : GRADE_VALUES[subj.grades[5]]) < (subj._avgs ? subj._avgs[0] : GRADE_VALUES[subj.grades[0]]) ? '↘ Declining' : '→ Steady'}
+            {subj.attainment[5] > subj.attainment[0] ? '↗ Improving' :
+              subj.attainment[5] < subj.attainment[0] ? '↘ Declining' : '→ Steady'}
           </span></div>
         </div>
-        <BigGraph subj={subj} hover={hover} setHover={setHover} />
-        <div className="legend-row">
-          <span><i className="leg-line-solid" /> {subj.name} attainment</span>
-          <span><i className="leg-line-dash" /> Target ({subj.target})</span>
-          <span><i className="leg-line-grey" /> Year-group average</span>
+        <div className="view-toggle view-toggle-wide" role="tablist" style={{ margin: '4px 0 12px' }}>
+          <button role="tab" aria-selected={attView === 'atl-in'} className={`vt-btn ${attView === 'atl-in' ? 'active' : ''}`} onClick={() => setAttView('atl-in')}>ATL · Classroom</button>
+          <button role="tab" aria-selected={attView === 'atl-out'} className={`vt-btn ${attView === 'atl-out' ? 'active' : ''}`} onClick={() => setAttView('atl-out')}>ATL · Outside</button>
+          <button role="tab" aria-selected={attView === 'atl-combined'} className={`vt-btn ${attView === 'atl-combined' ? 'active' : ''}`} onClick={() => setAttView('atl-combined')}>ATL · Combined</button>
+          <button role="tab" aria-selected={attView === 'attainment'} className={`vt-btn ${attView === 'attainment' ? 'active' : ''}`} onClick={() => setAttView('attainment')}>Attainment</button>
+          <button role="tab" aria-selected={attView === 'overlay'} className={`vt-btn ${attView === 'overlay' ? 'active' : ''}`} onClick={() => setAttView('overlay')}>Overlay</button>
         </div>
+        {attView === 'atl-in' &&
+        <>
+            <ATLGraph subj={subj} hover={hover} setHover={setHover} field="in" />
+            <div className="legend-row">
+              <span><i className="leg-line-solid" /> {subj.name} — ATL in the classroom</span>
+            </div>
+          </>
+        }
+        {attView === 'atl-out' &&
+        <>
+            <ATLGraph subj={subj} hover={hover} setHover={setHover} field="out" />
+            <div className="legend-row">
+              <span><i className="leg-line-solid leg-out" /> {subj.name} — ATL outside the classroom</span>
+            </div>
+          </>
+        }
+        {attView === 'atl-combined' &&
+        <>
+            <ATLGraph subj={subj} hover={hover} setHover={setHover} field="combined" />
+            <div className="legend-row">
+              <span><i className="leg-line-solid" /> ATL in the classroom</span>
+              <span><i className="leg-line-solid leg-out" /> ATL outside the classroom</span>
+            </div>
+          </>
+        }
+        {attView === 'attainment' &&
+        <>
+            <AttainGraph subj={subj} hover={hover} setHover={setHover} />
+            <div className="legend-row">
+              <span><i className="leg-line-solid leg-att" /> {subj.name} attainment (4–9)</span>
+              <span><i className="leg-line-dash leg-att" /> Target ({subj._attAvgs ? subj.attainmentTarget.toFixed(1) : subj.attainmentTarget})</span>
+            </div>
+          </>
+        }
+        {attView === 'overlay' &&
+        <>
+            <OverlayGraph subj={subj} hover={hover} setHover={setHover} />
+            <div className="legend-row">
+              <span><i className="leg-line-solid" /> ATL · classroom</span>
+              <span><i className="leg-line-solid leg-out" /> ATL · outside</span>
+              <span><i className="leg-line-solid leg-att" /> Attainment ({subj._attAvgs ? subj.attainmentTarget.toFixed(1) : subj.attainmentTarget} target)</span>
+            </div>
+          </>
+        }
         <CycleDetail subj={subj} hover={hover} />
       </Card>
 
@@ -201,26 +265,21 @@ const InterimScreen = ({ onNav }) => {
       }>
         <p className="card-blurb">
           {focusView === 'cards' ?
-          <>Each card shows the targets most often set and the praise codes most often awarded — a quick read on where {PUPIL.firstName} is being stretched and where he's thriving. Click a subject card to load it into the graph above.</> :
+          <>The two clouds below combine every subject and every cycle: <strong>Areas to grow</strong> shows the most-set target codes and <strong>Going well</strong> shows the most-awarded praise codes. Bigger, bolder chips appear more often. Hover any chip for the full description, or click a subject card lower down to focus the graph.</> :
 
           <>One row per subject across the six reporting cycles (R1 → R6). The chip in each cell is the target set that cycle; dots underneath are the praise codes awarded. Click any row to load that subject into the graph above.</>
           }
         </p>
         {focusView === 'cards' ?
         <>
-            <FocusCard
-            combined
-            title="All subjects"
-            subtitle="Across all 10 subjects"
-            stats={focusStats(SUBJECTS.map((s) => s.id))}
-            topN={5} />
+            <ChipClouds stats={focusStats(SUBJECTS.map((s) => s.id))} />
 
             <div className="focus-grid">
               {SUBJECTS.map((s) =>
             <FocusCard
               key={s.id}
               title={s.name}
-              subtitle={`${s.grades[5]} · target ${s.target}`}
+              subtitle={`Attainment ${s.attainment[5]} · target ${s.attainmentTarget}`}
               stats={focusStats([s.id])}
               topN={3}
               active={subjectId === s.id}
@@ -331,15 +390,28 @@ const CycleDetail = ({ subj, hover }) => {
   const idx = hover == null ? 5 : hover;
   const detail = (REPORTING_DETAILS[subj.id] || [])[idx];
   if (!detail) return null;
-  const grade = subj.grades[idx];
+  const inGrade = subj.grades[idx];
+  const outGrade = subj.gradesOutside[idx];
+  const attRaw = subj.attainment[idx];
+  const att = subj._attAvgs ? attRaw.toFixed(2) : attRaw;
   const isPinned = hover == null;
   return (
     <div className="cycle-detail">
       <div className="cd-head">
         <div className="cd-head-left">
           <span className="cd-cycle">R{idx + 1}</span>
-          <span className="cd-grade">{grade}</span>
-          <span className="cd-grade-full">{GRADE_FULL[grade]}</span>
+          <span className="cd-stack">
+            <span className="cd-stack-lab">ATL · class</span>
+            <GradeBadge code={inGrade} />
+          </span>
+          <span className="cd-stack">
+            <span className="cd-stack-lab">ATL · out</span>
+            <GradeBadge code={outGrade} />
+          </span>
+          <span className="cd-stack">
+            <span className="cd-stack-lab">Attainment</span>
+            <span className="cd-grade">{att}</span>
+          </span>
         </div>
         <span className="cd-hint">{isPinned ? 'Latest cycle · hover the graph to explore others' : `Hovering R${idx + 1}`}</span>
       </div>
@@ -439,6 +511,53 @@ const FocusCard = ({ title, subtitle, stats, topN = 3, combined = false, active 
   return <div className={className}>{Inner}</div>;
 };
 
+const ChipClouds = ({ stats }) => {
+  const renderCloud = (codes, type, lookup) => {
+    const max = codes.length ? codes[0].count : 1;
+    return (
+      <div className={`cloud cloud-${type}`}>
+        <div className="cloud-head">
+          <div>
+            <div className="cloud-kicker">{type === 'target' ? 'Areas to grow' : 'Going well'}</div>
+            <div className="cloud-title">
+              {type === 'target' ? 'Targets set most often' : 'Praise awarded most often'}
+            </div>
+          </div>
+          <div className="cloud-meta">{codes.length} codes · {codes.reduce((s, c) => s + c.count, 0)} occurrences</div>
+        </div>
+        <div className="cloud-chips">
+          {codes.map(({ code, count }) => {
+            const intensity = count / max;
+            const fontSize = 11 + intensity * 16;
+            const padV = 4 + intensity * 6;
+            const padH = 8 + intensity * 10;
+            const isStrong = intensity > 0.55;
+            return (
+              <span
+                key={code}
+                className={`cloud-chip cloud-chip-${type} ${isStrong ? 'cloud-chip-strong' : ''} code-tip`}
+                data-desc={lookup(code)}
+                style={{
+                  fontSize: `${fontSize}px`,
+                  padding: `${padV}px ${padH}px`,
+                  '--chip-opacity': (0.18 + intensity * 0.82).toFixed(3),
+                }}>
+                {code}<span className="cloud-count">{count}</span>
+              </span>);
+
+          })}
+        </div>
+      </div>);
+
+  };
+  return (
+    <div className="clouds-wrap">
+      {renderCloud(stats.targets, 'target', targetLabel)}
+      {renderCloud(stats.praise, 'praise', praiseLabel)}
+    </div>);
+
+};
+
 const TimelineView = ({ subjectId, setSubjectId }) => {
   return (
     <div className="timeline">
@@ -488,65 +607,230 @@ const TimelineView = ({ subjectId, setSubjectId }) => {
 
 };
 
-// ── Big graph
-const BigGraph = ({ subj, hover, setHover }) => {
+// Shared smoothing helper for line graphs
+const smoothPath = (xy) =>
+xy.map(({ x, y }, i, arr) => {
+  if (i === 0) return `M${x},${y}`;
+  const prev = arr[i - 1];
+  const mx = (prev.x + x) / 2;
+  return `C${mx},${prev.y} ${mx},${y} ${x},${y}`;
+}).join(' ');
+
+// ATL graph — letter-grade scale (NI/ME/EE/E), no target line.
+// `field` = 'in' | 'out' | 'combined' (combined draws both lines).
+const ATLGraph = ({ subj, hover, setHover, field = 'in' }) => {
   const W = 800,H = 320,PL = 60,PR = 30,PT = 24,PB = 40;
   const x = (i) => PL + i * (W - PL - PR) / 5;
   const y = (v) => H - PB - (v - 1) / 3 * (H - PT - PB);
-  const points = subj._avgs ? subj._avgs : subj.grades.map((g) => GRADE_VALUES[g]);
-  const yearAvg = [2.0, 2.1, 2.3, 2.4, 2.6, 2.7]; // illustrative year-group avg
 
-  const smooth = (pts) => pts.map((p, i, arr) => {
-    if (i === 0) return `M${x(i)},${y(p)}`;
-    const px = x(i - 1),py = y(arr[i - 1]);
-    const cx = x(i),cy = y(p);
-    const mx = (px + cx) / 2;
-    return `C${mx},${py} ${mx},${cy} ${cx},${cy}`;
-  }).join(' ');
+  const inPts = subj._avgs ? subj._avgs : subj.grades.map((g) => GRADE_VALUES[g]);
+  const outPts = subj._outAvgs ? subj._outAvgs : subj.gradesOutside.map((g) => GRADE_VALUES[g]);
+  const primary = field === 'out' ? outPts : inPts;
+  const secondary = field === 'combined' ? outPts : null;
+  const primaryColour = field === 'out' ? '#0f7a8a' : '#9b1844';
+  const yearAvg = [2.0, 2.1, 2.3, 2.4, 2.6, 2.7];
+  const toXY = (pts) => pts.map((p, i) => ({ x: x(i), y: y(p) }));
 
   return (
     <div className="biggraph-wrap">
       <svg viewBox={`0 0 ${W} ${H}`} className="biggraph" preserveAspectRatio="xMidYMid meet">
-        {/* y gridlines */}
+        {/* y gridlines + grade labels (with hover description) */}
         {[1, 2, 3, 4].map((v) =>
         <g key={v}>
             <line x1={PL} x2={W - PR} y1={y(v)} y2={y(v)} stroke="currentColor" opacity=".10" />
-            <text x={PL - 12} y={y(v) + 4} textAnchor="end" fontSize="13" fontWeight="600" fill="currentColor" opacity=".7" fontFamily="Inter">{GRADE_LABELS[v - 1]}</text>
+            <text x={PL - 12} y={y(v) + 4} textAnchor="end" fontSize="13" fontWeight="700"
+            className={`grade-axis grade-${GRADE_LABELS[v - 1]}`}
+            fontFamily="Inter">
+              <title>{`${GRADE_LABELS[v - 1]} — ${GRADE_FULL[GRADE_LABELS[v - 1]]}`}</title>
+              {GRADE_LABELS[v - 1]}
+            </text>
           </g>
         )}
-        {/* x labels */}
         {[0, 1, 2, 3, 4, 5].map((i) =>
         <text key={i} x={x(i)} y={H - 12} textAnchor="middle" fontSize="13" fontWeight="600" fill="currentColor" opacity=".7" fontFamily="Inter">R{i + 1}</text>
         )}
-        {/* target band */}
-        <line x1={PL} x2={W - PR} y1={y(GRADE_VALUES[subj.target])} y2={y(GRADE_VALUES[subj.target])}
-        stroke="#9b1844" strokeWidth="1.5" strokeDasharray="6 5" opacity=".7" />
-        <text x={W - PR - 6} y={y(GRADE_VALUES[subj.target]) - 6} textAnchor="end" fontSize="11" fill="#9b1844" fontWeight="700" fontFamily="Inter">Target {subj.target}</text>
 
         {/* year average */}
-        <path d={smooth(yearAvg)} fill="none" stroke="currentColor" strokeWidth="1.5" strokeDasharray="3 4" opacity=".4" />
+        <path d={smoothPath(toXY(yearAvg))} fill="none" stroke="currentColor" strokeWidth="1.5" strokeDasharray="3 4" opacity=".4" />
 
-        {/* attainment line */}
-        <path d={smooth(points)} fill="none" stroke="#9b1844" strokeWidth="3" strokeLinecap="round" />
-        {points.map((p, i) =>
+        {/* secondary line (combined view: outside ATL) */}
+        {secondary &&
+        <path d={smoothPath(toXY(secondary))} fill="none" stroke="#0f7a8a" strokeWidth="3" strokeLinecap="round" strokeDasharray="0" opacity=".95" />
+        }
+        {secondary && secondary.map((p, i) =>
+        <circle key={`s${i}`} cx={x(i)} cy={y(p)} r="4.5" fill="#fff" stroke="#0f7a8a" strokeWidth="2.5" />
+        )}
+
+        {/* primary line */}
+        <path d={smoothPath(toXY(primary))} fill="none" stroke={primaryColour} strokeWidth="3" strokeLinecap="round" />
+        {primary.map((p, i) =>
         <g key={i} onMouseEnter={() => setHover(i)} onMouseLeave={() => setHover(null)}>
             <circle cx={x(i)} cy={y(p)} r="14" fill="transparent" />
-            <circle cx={x(i)} cy={y(p)} r={hover === i ? 7 : 5} fill="#fff" stroke="#9b1844" strokeWidth="2.5" />
+            <circle cx={x(i)} cy={y(p)} r={hover === i ? 7 : 5} fill="#fff" stroke={primaryColour} strokeWidth="2.5" />
           </g>
         )}
         {hover !== null && (() => {
-          const tx = x(hover),ty = y(points[hover]);
+          const tx = x(hover),ty = y(primary[hover]);
+          const arr = field === 'out' ? subj.gradesOutside : subj.grades;
+          const labelGrade = subj._avgs && field !== 'out' ? subj._avgs[hover].toFixed(2) :
+          subj._outAvgs && field === 'out' ? subj._outAvgs[hover].toFixed(2) :
+          arr[hover];
+          const fullLabel = subj._avgs ? 'Average across subjects' : GRADE_FULL[arr[hover]];
           return (
             <g style={{ pointerEvents: 'none' }}>
-              <line x1={tx} x2={tx} y1={PT} y2={H - PB} stroke="#9b1844" opacity=".25" strokeDasharray="2 3" />
-              <rect x={tx - 58} y={ty - 46} width="116" height="34" rx="6" fill="#1e1e1e" opacity=".95" />
-              <text x={tx} y={ty - 30} textAnchor="middle" fontSize="11" fill="#fff" opacity=".7" fontFamily="Inter">R{hover + 1} · {subj._avgs ? subj._avgs[hover].toFixed(2) : subj.grades[hover]}</text>
-              <text x={tx} y={ty - 16} textAnchor="middle" fontSize="11" fill="#fff" fontFamily="Inter">{subj._avgs ? 'Average across subjects' : GRADE_FULL[subj.grades[hover]]}</text>
+              <line x1={tx} x2={tx} y1={PT} y2={H - PB} stroke={primaryColour} opacity=".25" strokeDasharray="2 3" />
+              <rect x={tx - 70} y={ty - 46} width="140" height="34" rx="6" fill="#1e1e1e" opacity=".95" />
+              <text x={tx} y={ty - 30} textAnchor="middle" fontSize="11" fill="#fff" opacity=".7" fontFamily="Inter">R{hover + 1} · {labelGrade}</text>
+              <text x={tx} y={ty - 16} textAnchor="middle" fontSize="11" fill="#fff" fontFamily="Inter">{fullLabel}</text>
             </g>);
 
         })()}
       </svg>
     </div>);
+
+};
+
+// Numeric attainment graph (4–9 scale, with target line).
+const AttainGraph = ({ subj, hover, setHover }) => {
+  const W = 800,H = 320,PL = 60,PR = 30,PT = 24,PB = 40;
+  const x = (i) => PL + i * (W - PL - PR) / 5;
+  const y = (v) => H - PB - (v - 4) / 5 * (H - PT - PB);
+  const points = subj.attainment;
+  const target = subj.attainmentTarget;
+  const toXY = (pts) => pts.map((p, i) => ({ x: x(i), y: y(p) }));
+
+  return (
+    <div className="biggraph-wrap">
+      <svg viewBox={`0 0 ${W} ${H}`} className="biggraph" preserveAspectRatio="xMidYMid meet">
+        {[4, 5, 6, 7, 8, 9].map((v) =>
+        <g key={v}>
+            <line x1={PL} x2={W - PR} y1={y(v)} y2={y(v)} stroke="currentColor" opacity=".10" />
+            <text x={PL - 12} y={y(v) + 4} textAnchor="end" fontSize="13" fontWeight="600" fill="currentColor" opacity=".7" fontFamily="Inter">{v}</text>
+          </g>
+        )}
+        {[0, 1, 2, 3, 4, 5].map((i) =>
+        <text key={i} x={x(i)} y={H - 12} textAnchor="middle" fontSize="13" fontWeight="600" fill="currentColor" opacity=".7" fontFamily="Inter">R{i + 1}</text>
+        )}
+
+        {/* target line */}
+        <line x1={PL} x2={W - PR} y1={y(target)} y2={y(target)}
+        stroke="#0f7a8a" strokeWidth="1.5" strokeDasharray="6 5" opacity=".7" />
+        <text x={W - PR - 6} y={y(target) - 6} textAnchor="end" fontSize="11" fill="#0f7a8a" fontWeight="700" fontFamily="Inter">Target {subj._attAvgs ? target.toFixed(1) : target}</text>
+
+        <path d={smoothPath(toXY(points))} fill="none" stroke="#0f7a8a" strokeWidth="3" strokeLinecap="round" />
+        {points.map((p, i) =>
+        <g key={i} onMouseEnter={() => setHover(i)} onMouseLeave={() => setHover(null)}>
+            <circle cx={x(i)} cy={y(p)} r="14" fill="transparent" />
+            <circle cx={x(i)} cy={y(p)} r={hover === i ? 7 : 5} fill="#fff" stroke="#0f7a8a" strokeWidth="2.5" />
+          </g>
+        )}
+        {hover !== null && (() => {
+          const tx = x(hover),ty = y(points[hover]);
+          const val = subj._attAvgs ? subj.attainment[hover].toFixed(2) : subj.attainment[hover];
+          return (
+            <g style={{ pointerEvents: 'none' }}>
+              <line x1={tx} x2={tx} y1={PT} y2={H - PB} stroke="#0f7a8a" opacity=".25" strokeDasharray="2 3" />
+              <rect x={tx - 60} y={ty - 36} width="120" height="24" rx="6" fill="#1e1e1e" opacity=".95" />
+              <text x={tx} y={ty - 20} textAnchor="middle" fontSize="11" fill="#fff" fontFamily="Inter">R{hover + 1} · grade {val}</text>
+            </g>);
+
+        })()}
+      </svg>
+    </div>);
+
+};
+
+// Overlay graph — three lines (ATL classroom, ATL outside, attainment) on dual y-axes.
+const OverlayGraph = ({ subj, hover, setHover }) => {
+  const W = 800,H = 340,PL = 60,PR = 60,PT = 24,PB = 40;
+  const x = (i) => PL + i * (W - PL - PR) / 5;
+  const yATL = (v) => H - PB - (v - 1) / 3 * (H - PT - PB);
+  const yAtt = (v) => H - PB - (v - 4) / 5 * (H - PT - PB);
+
+  const inPts = subj._avgs ? subj._avgs : subj.grades.map((g) => GRADE_VALUES[g]);
+  const outPts = subj._outAvgs ? subj._outAvgs : subj.gradesOutside.map((g) => GRADE_VALUES[g]);
+  const attPts = subj.attainment;
+
+  const toXY = (pts, yFn) => pts.map((p, i) => ({ x: x(i), y: yFn(p) }));
+
+  return (
+    <div className="biggraph-wrap">
+      <svg viewBox={`0 0 ${W} ${H}`} className="biggraph" preserveAspectRatio="xMidYMid meet">
+        {/* left axis labels (ATL letters) */}
+        {[1, 2, 3, 4].map((v) =>
+        <g key={`l${v}`}>
+            <line x1={PL} x2={W - PR} y1={yATL(v)} y2={yATL(v)} stroke="currentColor" opacity=".06" />
+            <text x={PL - 12} y={yATL(v) + 4} textAnchor="end" fontSize="13" fontWeight="700"
+            className={`grade-axis grade-${GRADE_LABELS[v - 1]}`}
+            fontFamily="Inter">
+              <title>{`${GRADE_LABELS[v - 1]} — ${GRADE_FULL[GRADE_LABELS[v - 1]]}`}</title>
+              {GRADE_LABELS[v - 1]}
+            </text>
+          </g>
+        )}
+        {/* right axis labels (attainment numbers) */}
+        {[4, 5, 6, 7, 8, 9].map((v) =>
+        <text key={`r${v}`} x={W - PR + 12} y={yAtt(v) + 4} textAnchor="start" fontSize="12" fontWeight="600" fill="#0f7a8a" opacity=".85" fontFamily="Inter">{v}</text>
+        )}
+        {/* x labels */}
+        {[0, 1, 2, 3, 4, 5].map((i) =>
+        <text key={i} x={x(i)} y={H - 12} textAnchor="middle" fontSize="13" fontWeight="600" fill="currentColor" opacity=".7" fontFamily="Inter">R{i + 1}</text>
+        )}
+
+        {/* attainment target line (right-axis scale) */}
+        <line x1={PL} x2={W - PR} y1={yAtt(subj.attainmentTarget)} y2={yAtt(subj.attainmentTarget)}
+        stroke="#0f7a8a" strokeWidth="1.5" strokeDasharray="6 5" opacity=".55" />
+
+        {/* ATL outside (dashed magenta-2) */}
+        <path d={smoothPath(toXY(outPts, yATL))} fill="none" stroke="#b9607d" strokeWidth="2.5" strokeLinecap="round" strokeDasharray="4 4" opacity=".95" />
+        {outPts.map((p, i) =>
+        <circle key={`o${i}`} cx={x(i)} cy={yATL(p)} r="4" fill="#fff" stroke="#b9607d" strokeWidth="2" />
+        )}
+
+        {/* ATL in classroom (solid magenta) */}
+        <path d={smoothPath(toXY(inPts, yATL))} fill="none" stroke="#9b1844" strokeWidth="3" strokeLinecap="round" />
+        {inPts.map((p, i) =>
+        <g key={`i${i}`} onMouseEnter={() => setHover(i)} onMouseLeave={() => setHover(null)}>
+            <circle cx={x(i)} cy={yATL(p)} r="14" fill="transparent" />
+            <circle cx={x(i)} cy={yATL(p)} r={hover === i ? 7 : 5} fill="#fff" stroke="#9b1844" strokeWidth="2.5" />
+          </g>
+        )}
+
+        {/* Attainment (teal, right-axis) */}
+        <path d={smoothPath(toXY(attPts, yAtt))} fill="none" stroke="#0f7a8a" strokeWidth="3" strokeLinecap="round" />
+        {attPts.map((p, i) =>
+        <circle key={`a${i}`} cx={x(i)} cy={yAtt(p)} r="4.5" fill="#fff" stroke="#0f7a8a" strokeWidth="2.5" />
+        )}
+
+        {hover !== null && (() => {
+          const tx = x(hover);
+          const inGrade = subj._avgs ? subj._avgs[hover].toFixed(2) : subj.grades[hover];
+          const outGrade = subj._outAvgs ? subj._outAvgs[hover].toFixed(2) : subj.gradesOutside[hover];
+          const att = subj._attAvgs ? subj.attainment[hover].toFixed(2) : subj.attainment[hover];
+          const tipY = PT + 6;
+          return (
+            <g style={{ pointerEvents: 'none' }}>
+              <line x1={tx} x2={tx} y1={PT} y2={H - PB} stroke="#9b1844" opacity=".25" strokeDasharray="2 3" />
+              <rect x={tx - 80} y={tipY} width="160" height="62" rx="6" fill="#1e1e1e" opacity=".95" />
+              <text x={tx} y={tipY + 16} textAnchor="middle" fontSize="11" fill="#fff" fontWeight="700" fontFamily="Inter">R{hover + 1}</text>
+              <text x={tx} y={tipY + 31} textAnchor="middle" fontSize="11" fill="#fff" opacity=".85" fontFamily="Inter">ATL · class {inGrade}</text>
+              <text x={tx} y={tipY + 44} textAnchor="middle" fontSize="11" fill="#fff" opacity=".85" fontFamily="Inter">ATL · out {outGrade}</text>
+              <text x={tx} y={tipY + 57} textAnchor="middle" fontSize="11" fill="#fff" opacity=".85" fontFamily="Inter">Attainment {att}</text>
+            </g>);
+
+        })()}
+      </svg>
+    </div>);
+
+};
+
+// Small grade-letter chip with hover description; "E" gets the gold treatment.
+const GradeBadge = ({ code }) => {
+  if (code == null) return null;
+  return (
+    <span className={`grade-badge grade-${code} code-tip`} data-desc={`${code} — ${GRADE_FULL[code] || ''}`}>
+      {code}
+    </span>);
 
 };
 

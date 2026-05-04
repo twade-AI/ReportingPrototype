@@ -198,13 +198,28 @@ button { font-family: inherit; }
 .leg-box-code {
   font-family: 'JetBrains Mono', monospace;
   font-size: 11px; font-weight: 700;
-  background: var(--magenta); color: #fff;
   padding: 3px 6px; border-radius: 4px; min-width: 28px; text-align: center;
+  color: #fff;
 }
-.leg-box:nth-child(2) .leg-box-code { background: #c95f55; }
-.leg-box:nth-child(3) .leg-box-code { background: #d8b96a; color: #2a1a08; }
-.leg-box:nth-child(4) .leg-box-code { background: #8b8086; }
 .leg-box-label { color: var(--ink-2); }
+
+/* Centralised colour-mapping for ATL letter grades — used wherever a code appears */
+.grade-E,  .leg-box-code.grade-E,  .grade-badge.grade-E  { background: linear-gradient(135deg,#e0bb40,#b8902a); color: #2a1a08; }
+.grade-EE, .leg-box-code.grade-EE, .grade-badge.grade-EE { background: var(--magenta); color: #fff; }
+.grade-ME, .leg-box-code.grade-ME, .grade-badge.grade-ME { background: #c95f55; color: #fff; }
+.grade-NI, .leg-box-code.grade-NI, .grade-badge.grade-NI { background: #8b8086; color: #fff; }
+text.grade-axis { letter-spacing: .03em; }
+text.grade-E  { fill: #b8902a; }
+text.grade-EE { fill: var(--magenta); }
+text.grade-ME { fill: #c95f55; }
+text.grade-NI { fill: #8b8086; }
+
+.grade-badge {
+  display: inline-block;
+  font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700;
+  padding: 3px 7px; border-radius: 4px; min-width: 28px; text-align: center;
+  cursor: help;
+}
 
 /* ── Tickets ─────────────────────────────────────────── */
 .tickets {
@@ -494,6 +509,20 @@ button { font-family: inherit; }
 .leg-line-solid { display: inline-block; width: 20px; height: 3px; background: var(--magenta); border-radius: 2px; }
 .leg-line-dash { display: inline-block; width: 20px; height: 0; border-top: 2px dashed var(--magenta); }
 .leg-line-grey { display: inline-block; width: 20px; height: 0; border-top: 2px dashed var(--ink-3); opacity: .5; }
+.leg-line-solid.leg-att { background: #0f7a8a; }
+.leg-line-dash.leg-att { border-top-color: #0f7a8a; }
+.leg-line-solid.leg-out { background: #b9607d; }
+.leg-line-dash.leg-out { border-top-color: #b9607d; }
+
+/* Wider view toggle (5+ tabs) wraps onto its own row above the graph */
+.view-toggle-wide { display: flex; flex-wrap: wrap; }
+
+/* ATL stack inside the snapshot card */
+.snap-atl {
+  display: flex; align-items: center; gap: 4px;
+  margin-top: 6px; font-family: 'JetBrains Mono', monospace;
+}
+.snap-atl-sep { color: var(--ink-3); font-weight: 700; }
 
 /* Cycle detail panel — under the BigGraph */
 .cycle-detail {
@@ -508,7 +537,12 @@ button { font-family: inherit; }
   gap: 12px; padding-bottom: 10px; margin-bottom: 12px;
   border-bottom: 1px solid var(--rule);
 }
-.cd-head-left { display: flex; align-items: baseline; gap: 10px; }
+.cd-head-left { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.cd-stack { display: inline-flex; flex-direction: column; gap: 3px; align-items: flex-start; }
+.cd-stack-lab {
+  font-size: 9px; font-weight: 700; color: var(--ink-3);
+  letter-spacing: .08em; text-transform: uppercase;
+}
 .cd-cycle {
   font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 700;
   color: var(--magenta); background: var(--magenta-12);
@@ -665,6 +699,76 @@ button { font-family: inherit; }
   .timeline-cell { padding: 4px 2px; min-height: 48px; }
   .timeline-target { font-size: 9px; padding: 2px 4px; }
   .timeline-dot, .timeline-key-dot { width: 6px; height: 6px; }
+}
+
+/* Combined chip cloud — visual summary of targets vs praise across all subjects */
+.clouds-wrap {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
+  margin-bottom: 18px;
+}
+.cloud {
+  background: var(--paper); border: 1px solid var(--rule);
+  border-radius: 12px; padding: 16px;
+  display: flex; flex-direction: column; gap: 14px;
+}
+.cloud-target { border-left: 3px solid var(--magenta); }
+.cloud-praise { border-left: 3px solid #1f9d6b; }
+.cloud-head {
+  display: flex; justify-content: space-between; align-items: flex-start;
+  gap: 10px; padding-bottom: 10px; border-bottom: 1px solid var(--rule);
+}
+.cloud-kicker {
+  font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
+  margin-bottom: 4px;
+}
+.cloud-target .cloud-kicker { color: var(--magenta); }
+.cloud-praise .cloud-kicker { color: #1f9d6b; }
+.cloud-title { font-size: 14px; font-weight: 700; color: var(--ink); }
+.cloud-meta {
+  font-size: 11px; color: var(--ink-3);
+  font-family: 'JetBrains Mono', monospace;
+  white-space: nowrap;
+}
+.cloud-chips {
+  display: flex; flex-wrap: wrap; gap: 8px;
+  align-items: center; justify-content: center;
+  padding: 14px 6px; min-height: 140px;
+}
+.cloud-chip {
+  font-family: 'JetBrains Mono', monospace; font-weight: 700;
+  border-radius: 8px; line-height: 1;
+  display: inline-flex; align-items: baseline; gap: 6px;
+  cursor: help; transition: transform .15s, box-shadow .15s;
+  border: 1px solid transparent;
+}
+.cloud-chip:hover {
+  transform: translateY(-1px) scale(1.04);
+  box-shadow: 0 4px 12px rgba(0,0,0,.10);
+  z-index: 1;
+}
+.cloud-chip-target {
+  background: rgba(155, 24, 68, var(--chip-opacity, .25));
+  color: var(--magenta);
+  border-color: rgba(155, 24, 68, .3);
+}
+.cloud-chip-target.cloud-chip-strong {
+  background: var(--magenta); color: #fff; border-color: transparent;
+}
+.cloud-chip-praise {
+  background: rgba(31, 157, 107, var(--chip-opacity, .25));
+  color: #15734f;
+  border-color: rgba(31, 157, 107, .3);
+}
+.cloud-chip-praise.cloud-chip-strong {
+  background: #1f9d6b; color: #fff; border-color: transparent;
+}
+.cloud-count {
+  font-family: 'Inter', sans-serif; font-size: .68em; font-weight: 600;
+  opacity: .75;
+}
+
+@media (max-width: 720px) {
+  .clouds-wrap { grid-template-columns: 1fr; }
 }
 
 /* Focus cards — replaces the old subject × target heatmap */
