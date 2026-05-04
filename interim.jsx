@@ -7,7 +7,7 @@ const InterimScreen = ({ onNav }) => {
   const [tutorOpen, setTutorOpen] = useStateI(false);
   const [activeTicket, setActiveTicket] = useStateI('yellow');
   const [attendanceOpen, setAttendanceOpen] = useStateI(false);
-  const [focusView, setFocusView] = useStateI('cards');
+  const [focusView, setFocusView] = useStateI('cloud');
   // 'atl-in' | 'atl-out' | 'atl-combined' | 'attainment' | 'overlay'
   const [attView, setAttView] = useStateI('atl-in');
 
@@ -259,37 +259,33 @@ const InterimScreen = ({ onNav }) => {
       <Card kicker="Targets & praise · whole year" title="Focus across the year"
       action={
       <div className="view-toggle" role="tablist">
-            <button role="tab" aria-selected={focusView === 'cards'} className={`vt-btn ${focusView === 'cards' ? 'active' : ''}`} onClick={() => setFocusView('cards')}>Cards</button>
-            <button role="tab" aria-selected={focusView === 'timeline'} className={`vt-btn ${focusView === 'timeline' ? 'active' : ''}`} onClick={() => setFocusView('timeline')}>Timeline</button>
+            <button role="tab" aria-selected={focusView === 'cloud'} className={`vt-btn ${focusView === 'cloud' ? 'active' : ''}`} onClick={() => setFocusView('cloud')}>Cloud</button>
+            <button role="tab" aria-selected={focusView === 'subjects'} className={`vt-btn ${focusView === 'subjects' ? 'active' : ''}`} onClick={() => setFocusView('subjects')}>By subject</button>
           </div>
       }>
         <p className="card-blurb">
-          {focusView === 'cards' ?
-          <>The two clouds below combine every subject and every cycle: <strong>Areas to grow</strong> shows the most-set target codes and <strong>Going well</strong> shows the most-awarded praise codes. Bigger, bolder chips appear more often. Hover any chip for the full description, or click a subject card lower down to focus the graph.</> :
+          {focusView === 'cloud' ?
+          <>The two clouds combine every subject and every cycle: <strong>Areas to grow</strong> shows the most-set target codes and <strong>Going well</strong> shows the most-awarded praise codes. Bigger, bolder chips appear more often. Hover any chip for the full description.</> :
 
-          <>One row per subject across the six reporting cycles (R1 → R6). The chip in each cell is the target set that cycle; dots underneath are the praise codes awarded. Click any row to load that subject into the graph above.</>
+          <>One card per subject showing its top targets and top praise codes. Click a card to load that subject into the graph above.</>
           }
         </p>
-        {focusView === 'cards' ?
-        <>
-            <ChipClouds stats={focusStats(SUBJECTS.map((s) => s.id))} />
+        {focusView === 'cloud' ?
+        <ChipClouds stats={focusStats(SUBJECTS.map((s) => s.id))} /> :
 
-            <div className="focus-grid">
-              {SUBJECTS.map((s) =>
-            <FocusCard
-              key={s.id}
-              title={s.name}
-              subtitle={`Attainment ${s.attainment[5]} · target ${s.attainmentTarget}`}
-              stats={focusStats([s.id])}
-              topN={3}
-              active={subjectId === s.id}
-              onSelect={() => setSubjectId(s.id)} />
+        <div className="focus-grid">
+            {SUBJECTS.map((s) =>
+          <FocusCard
+            key={s.id}
+            title={s.name}
+            subtitle={`Attainment ${s.attainment[5]} · target ${s.attainmentTarget}`}
+            stats={focusStats([s.id])}
+            topN={3}
+            active={subjectId === s.id}
+            onSelect={() => setSubjectId(s.id)} />
 
-            )}
-            </div>
-          </> :
-
-        <TimelineView subjectId={subjectId} setSubjectId={setSubjectId} />
+          )}
+          </div>
         }
       </Card>
 
@@ -554,55 +550,6 @@ const ChipClouds = ({ stats }) => {
     <div className="clouds-wrap">
       {renderCloud(stats.targets, 'target', targetLabel)}
       {renderCloud(stats.praise, 'praise', praiseLabel)}
-    </div>);
-
-};
-
-const TimelineView = ({ subjectId, setSubjectId }) => {
-  return (
-    <div className="timeline">
-      <div className="timeline-row timeline-headrow">
-        <div className="timeline-subj timeline-subj-head">Subject</div>
-        {[1, 2, 3, 4, 5, 6].map((n) =>
-        <div key={n} className="timeline-cell timeline-cell-head">R{n}</div>
-        )}
-      </div>
-      {SUBJECTS.map((s) => {
-        const cycles = REPORTING_DETAILS[s.id] || [];
-        const active = subjectId === s.id;
-        return (
-          <button
-            key={s.id}
-            type="button"
-            className={`timeline-row timeline-row-clickable ${active ? 'active' : ''}`}
-            onClick={() => setSubjectId(s.id)}>
-            <div className="timeline-subj">{s.name}</div>
-            {cycles.map((c, i) =>
-            <div key={i} className="timeline-cell">
-                <span
-                className="timeline-target code-tip"
-                data-desc={targetLabel(c.target)}>
-                  {c.target}
-                </span>
-                <div className="timeline-dots">
-                  {c.praise.map((p) =>
-                <span
-                  key={p}
-                  className="timeline-dot code-tip"
-                  data-desc={`${p} — ${praiseLabel(p)}`}
-                  aria-label={praiseLabel(p)} />
-
-                )}
-                </div>
-              </div>
-            )}
-          </button>);
-
-      })}
-      <div className="timeline-key">
-        <span className="timeline-key-item"><span className="timeline-key-chip">CO</span> Target code (one per cycle)</span>
-        <span className="timeline-key-item"><span className="timeline-key-dot" /> Praise code awarded — hover for description</span>
-      </div>
     </div>);
 
 };
