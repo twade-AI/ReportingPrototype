@@ -278,7 +278,7 @@ const InterimScreen = ({ onNav }) => {
           <FocusCard
             key={s.id}
             title={s.name}
-            subtitle={`Attainment ${s.attainment[5]} · target ${s.attainmentTarget}`}
+            subtitle={`Attainment ${s.attainment[5]} · Target ${s.attainmentTarget}`}
             stats={focusStats([s.id])}
             topN={3}
             active={subjectId === s.id}
