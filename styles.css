@@ -198,13 +198,28 @@ button { font-family: inherit; }
 .leg-box-code {
   font-family: 'JetBrains Mono', monospace;
   font-size: 11px; font-weight: 700;
-  background: var(--magenta); color: #fff;
   padding: 3px 6px; border-radius: 4px; min-width: 28px; text-align: center;
+  color: #fff;
 }
-.leg-box:nth-child(2) .leg-box-code { background: #c95f55; }
-.leg-box:nth-child(3) .leg-box-code { background: #d8b96a; color: #2a1a08; }
-.leg-box:nth-child(4) .leg-box-code { background: #8b8086; }
 .leg-box-label { color: var(--ink-2); }
+
+/* Centralised colour-mapping for ATL letter grades — used wherever a code appears */
+.grade-E,  .leg-box-code.grade-E,  .grade-badge.grade-E  { background: linear-gradient(135deg,#e0bb40,#b8902a); color: #2a1a08; }
+.grade-EE, .leg-box-code.grade-EE, .grade-badge.grade-EE { background: var(--magenta); color: #fff; }
+.grade-ME, .leg-box-code.grade-ME, .grade-badge.grade-ME { background: #c95f55; color: #fff; }
+.grade-NI, .leg-box-code.grade-NI, .grade-badge.grade-NI { background: #8b8086; color: #fff; }
+text.grade-axis { letter-spacing: .03em; }
+text.grade-E  { fill: #b8902a; }
+text.grade-EE { fill: var(--magenta); }
+text.grade-ME { fill: #c95f55; }
+text.grade-NI { fill: #8b8086; }
+
+.grade-badge {
+  display: inline-block;
+  font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700;
+  padding: 3px 7px; border-radius: 4px; min-width: 28px; text-align: center;
+  cursor: help;
+}
 
 /* ── Tickets ─────────────────────────────────────────── */
 .tickets {
@@ -494,6 +509,20 @@ button { font-family: inherit; }
 .leg-line-solid { display: inline-block; width: 20px; height: 3px; background: var(--magenta); border-radius: 2px; }
 .leg-line-dash { display: inline-block; width: 20px; height: 0; border-top: 2px dashed var(--magenta); }
 .leg-line-grey { display: inline-block; width: 20px; height: 0; border-top: 2px dashed var(--ink-3); opacity: .5; }
+.leg-line-solid.leg-att { background: #0f7a8a; }
+.leg-line-dash.leg-att { border-top-color: #0f7a8a; }
+.leg-line-solid.leg-out { background: #b9607d; }
+.leg-line-dash.leg-out { border-top-color: #b9607d; }
+
+/* Wider view toggle (5+ tabs) wraps onto its own row above the graph */
+.view-toggle-wide { display: flex; flex-wrap: wrap; }
+
+/* ATL stack inside the snapshot card */
+.snap-atl {
+  display: flex; align-items: center; gap: 4px;
+  margin-top: 6px; font-family: 'JetBrains Mono', monospace;
+}
+.snap-atl-sep { color: var(--ink-3); font-weight: 700; }
 
 /* Cycle detail panel — under the BigGraph */
 .cycle-detail {
@@ -508,7 +537,12 @@ button { font-family: inherit; }
   gap: 12px; padding-bottom: 10px; margin-bottom: 12px;
   border-bottom: 1px solid var(--rule);
 }
-.cd-head-left { display: flex; align-items: baseline; gap: 10px; }
+.cd-head-left { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.cd-stack { display: inline-flex; flex-direction: column; gap: 3px; align-items: flex-start; }
+.cd-stack-lab {
+  font-size: 9px; font-weight: 700; color: var(--ink-3);
+  letter-spacing: .08em; text-transform: uppercase;
+}
 .cd-cycle {
   font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 700;
   color: var(--magenta); background: var(--magenta-12);
