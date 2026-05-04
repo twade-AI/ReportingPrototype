@@ -329,7 +329,7 @@ const CycleDetail = ({ subj, hover }) => {
         <div className="cd-col cd-col-target">
           <div className="cd-col-kicker">Target this cycle</div>
           <div className="cd-target">
-            <span className="cd-code cd-code-target">{detail.target}</span>
+            <span className="cd-code cd-code-target code-tip" data-desc={targetLabel(detail.target)}>{detail.target}</span>
             <span className="cd-code-label">{targetLabel(detail.target)}</span>
           </div>
         </div>
@@ -337,8 +337,8 @@ const CycleDetail = ({ subj, hover }) => {
           <div className="cd-col-kicker">What's going well</div>
           <ul className="cd-praise-list">
             {detail.praise.map((code) =>
-            <li key={code} className="cd-praise-row" title={praiseLabel(code)}>
-                <span className="cd-code cd-code-praise">{code}</span>
+            <li key={code} className="cd-praise-row">
+                <span className="cd-code cd-code-praise code-tip" data-desc={praiseLabel(code)}>{code}</span>
                 <span className="cd-code-label">{praiseLabel(code)}</span>
               </li>
             )}
@@ -388,8 +388,8 @@ const FocusCard = ({ title, subtitle, stats, topN = 3, combined = false, active 
         <div className="focus-section-kicker focus-kicker-target">Top targets</div>
         <ul className="focus-list">
           {topTargets.map((t) =>
-          <li key={t.code} className="focus-row" title={targetLabel(t.code)}>
-              <span className="focus-code focus-code-target">{t.code}</span>
+          <li key={t.code} className="focus-row">
+              <span className="focus-code focus-code-target code-tip" data-desc={targetLabel(t.code)}>{t.code}</span>
               <div className="focus-bar-wrap">
                 <div className="focus-bar focus-bar-target" style={{ width: `${t.count / targetMax * 100}%` }} />
               </div>
@@ -402,8 +402,8 @@ const FocusCard = ({ title, subtitle, stats, topN = 3, combined = false, active 
         <div className="focus-section-kicker focus-kicker-praise">Top praise</div>
         <ul className="focus-list">
           {topPraise.map((p) =>
-          <li key={p.code} className="focus-row" title={praiseLabel(p.code)}>
-              <span className="focus-code focus-code-praise">{p.code}</span>
+          <li key={p.code} className="focus-row">
+              <span className="focus-code focus-code-praise code-tip" data-desc={praiseLabel(p.code)}>{p.code}</span>
               <div className="focus-bar-wrap">
                 <div className="focus-bar focus-bar-praise" style={{ width: `${p.count / praiseMax * 100}%` }} />
               </div>
