@@ -41,31 +41,16 @@ const TopBar = ({ active, onNav, theme, setTheme }) => {
 };
 
 const PupilPortrait = ({ size = 96 }) => {
-  // Stylised SVG portrait placeholder — neutral, on brand
+  const name = typeof PUPIL !== 'undefined' ? `${PUPIL.firstName} ${PUPIL.lastName}` : 'Pupil';
   return (
-    <svg width={size} height={size} viewBox="0 0 96 96" className="portrait">
-      <defs>
-        <linearGradient id="pg" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stopColor="#9b1844" />
-          <stop offset="100%" stopColor="#5a0f28" />
-        </linearGradient>
-        <linearGradient id="pg2" x1="0" y1="1" x2="0" y2="0">
-          <stop offset="0%" stopColor="rgba(255,255,255,.18)" />
-          <stop offset="100%" stopColor="rgba(255,255,255,0)" />
-        </linearGradient>
-      </defs>
-      <rect width="96" height="96" rx="14" fill="url(#pg)" />
-      <rect width="96" height="96" rx="14" fill="url(#pg2)" />
-      {/* Shoulders */}
-      <path d="M8 96 C 14 70, 38 66, 48 66 C 58 66, 82 70, 88 96 Z" fill="rgba(255,255,255,.16)" />
-      {/* Head */}
-      <circle cx="48" cy="44" r="18" fill="rgba(255,255,255,.92)" />
-      {/* Hair */}
-      <path d="M30 40 C 30 26, 66 24, 66 40 C 66 36, 60 31, 48 31 C 38 31, 32 35, 30 40 Z" fill="#3b2418" />
-      {/* Tie hint */}
-      <path d="M44 96 L48 80 L52 96 Z" fill="#9b1844" />
-      <text x="48" y="92" textAnchor="middle" fontSize="9" fontWeight="700" fill="rgba(255,255,255,.55)" fontFamily="Inter">OW</text>
-    </svg>);
+    <img
+      src="assets/pupil.png"
+      alt={name}
+      className="portrait"
+      width={size}
+      height={size}
+      style={{ width: size, height: size, objectFit: 'cover' }} />);
+
 
 };
 
