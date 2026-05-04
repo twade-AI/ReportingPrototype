@@ -146,6 +146,23 @@ const InterimScreen = ({ onNav }) => {
         </div>
       </Card>
 
+      {/* Compare all subjects */}
+      <Card kicker="All subjects · R6" title="Latest grade snapshot">
+        <div className="snapshot">
+          {SUBJECTS.map((s) => {
+            const g = s.grades[5];
+            const at = GRADE_VALUES[g] >= GRADE_VALUES[s.target];
+            return (
+              <button key={s.id} className={`snap ${subjectId === s.id ? 'snap-active' : ''}`} onClick={() => setSubjectId(s.id)}>
+                <div className="snap-name">{s.name}</div>
+                <div className={`snap-grade ${at ? 'g-ok' : 'g-warn'}`}>{g}</div>
+                <div className="snap-target">target {s.target}</div>
+              </button>);
+
+          })}
+        </div>
+      </Card>
+
       <Card kicker="Filterable" title="Attainment by subject"
       action={
       <div className="filters">
@@ -172,23 +189,6 @@ const InterimScreen = ({ onNav }) => {
           <span><i className="leg-line-grey" /> Year-group average</span>
         </div>
         <CycleDetail subj={subj} hover={hover} />
-      </Card>
-
-      {/* Compare all subjects */}
-      <Card kicker="All subjects · R6" title="Latest grade snapshot">
-        <div className="snapshot">
-          {SUBJECTS.map((s) => {
-            const g = s.grades[5];
-            const at = GRADE_VALUES[g] >= GRADE_VALUES[s.target];
-            return (
-              <button key={s.id} className={`snap ${subjectId === s.id ? 'snap-active' : ''}`} onClick={() => setSubjectId(s.id)}>
-                <div className="snap-name">{s.name}</div>
-                <div className={`snap-grade ${at ? 'g-ok' : 'g-warn'}`}>{g}</div>
-                <div className="snap-target">target {s.target}</div>
-              </button>);
-
-          })}
-        </div>
       </Card>
 
       <Card kicker="Targets & praise · whole year" title="Focus across the year"
