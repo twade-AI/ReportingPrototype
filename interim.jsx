@@ -4,7 +4,6 @@ const { useState: useStateI, useMemo: useMemoI } = React;
 const InterimScreen = ({ onNav }) => {
   const [subjectId, setSubjectId] = useStateI('maths');
   const [hover, setHover] = useStateI(null);
-  const [heatHover, setHeatHover] = useStateI(null);
   const [tutorOpen, setTutorOpen] = useStateI(false);
   const [activeTicket, setActiveTicket] = useStateI('yellow');
   const [attendanceOpen, setAttendanceOpen] = useStateI(false);
@@ -192,30 +191,28 @@ const InterimScreen = ({ onNav }) => {
         </div>
       </Card>
 
-      <Card kicker="Heatmap · subject × target" title="Targets set this year"
-      action={<span className="meta-chip">17 categories · {SUBJECTS.length} subjects</span>}>
-        <p className="card-blurb">Darker cells = a target has been set in more reporting periods. Hover any cell to see the full target description.</p>
-        <Heatmap heatHover={heatHover} setHeatHover={setHeatHover} setSubjectId={setSubjectId} subjectId={subjectId} />
-        <div className="heat-legend">
-          <span className="heat-leg-lab">Less often</span>
-          {[0, 1, 2, 3, 4].map((n) =>
-          <span key={n} className="heat-leg-sw" style={{ background: heatColor(n) }} />
-          )}
-          <span className="heat-leg-lab">Every period</span>
-        </div>
+      <Card kicker="Targets & praise · whole year" title="Focus across the year"
+      action={<span className="meta-chip">{SUBJECTS.length} subjects · 6 cycles</span>}>
+        <p className="card-blurb">Each card shows the targets most often set and the praise codes most often awarded — a quick read on where {PUPIL.firstName} is being stretched and where he's thriving. Click a subject card to load it into the graph above.</p>
+        <FocusCard
+          combined
+          title="All subjects"
+          subtitle="Across all 10 subjects"
+          stats={focusStats(SUBJECTS.map((s) => s.id))}
+          topN={5} />
 
-        <div className="targets-most">
-          <h4 className="card-title-sm">Most common targets across {PUPIL.firstName}'s subjects</h4>
-          <div className="targets-most-list">
-            {topTargets().map((t) =>
-            <div key={t.code} className="tm-row">
-                <div className="tm-code">{t.code}</div>
-                <div className="tm-label">{t.label}</div>
-                <div className="tm-bar"><div className="tm-bar-fill" style={{ width: `${t.total / 16 * 100}%` }} /></div>
-                <div className="tm-num">{t.total}</div>
-              </div>
-            )}
-          </div>
+        <div className="focus-grid">
+          {SUBJECTS.map((s) =>
+          <FocusCard
+            key={s.id}
+            title={s.name}
+            subtitle={`${s.grades[5]} · target ${s.target}`}
+            stats={focusStats([s.id])}
+            topN={3}
+            active={subjectId === s.id}
+            onSelect={() => setSubjectId(s.id)} />
+
+          )}
         </div>
       </Card>
 
@@ -352,22 +349,76 @@ const CycleDetail = ({ subj, hover }) => {
 
 };
 
-const heatColor = (v) => {
-  if (v === 0) return 'var(--heat-0)';
-  const stops = ['var(--heat-1)', 'var(--heat-2)', 'var(--heat-3)', 'var(--heat-4)'];
-  return stops[v - 1];
+// Aggregate target / praise code counts across one or many subjects.
+// Returns sorted lists with code, count, and the total cycles examined (for
+// computing relative bar widths).
+const focusStats = (subjectIds) => {
+  const targets = {};
+  const praise = {};
+  let totalCycles = 0;
+  subjectIds.forEach((id) => {
+    const cycles = REPORTING_DETAILS[id] || [];
+    totalCycles += cycles.length;
+    cycles.forEach((c) => {
+      targets[c.target] = (targets[c.target] || 0) + 1;
+      c.praise.forEach((p) => {praise[p] = (praise[p] || 0) + 1;});
+    });
+  });
+  const sortDesc = (obj) =>
+  Object.entries(obj).
+  sort((a, b) => b[1] - a[1]).
+  map(([code, count]) => ({ code, count }));
+  return { targets: sortDesc(targets), praise: sortDesc(praise), totalCycles };
 };
 
-const topTargets = () => {
-  const totals = {};
-  TARGET_CODES.forEach((t) => totals[t.code] = 0);
-  Object.values(TARGETS_MATRIX).forEach((row) => {
-    Object.entries(row).forEach(([code, n]) => {totals[code] = (totals[code] || 0) + n;});
-  });
-  return TARGET_CODES.map((t) => ({ ...t, total: totals[t.code] })).
-  filter((t) => t.total > 0).
-  sort((a, b) => b.total - a.total).
-  slice(0, 6);
+const FocusCard = ({ title, subtitle, stats, topN = 3, combined = false, active = false, onSelect }) => {
+  const targetMax = stats.targets[0] ? stats.targets[0].count : 1;
+  const praiseMax = stats.praise[0] ? stats.praise[0].count : 1;
+  const topTargets = stats.targets.slice(0, topN);
+  const topPraise = stats.praise.slice(0, topN);
+  const className = `focus-card ${combined ? 'focus-card-combined' : ''} ${active ? 'focus-card-active' : ''} ${onSelect ? 'focus-card-clickable' : ''}`.trim();
+
+  const Inner = (
+    <>
+      <div className="focus-head">
+        <div className="focus-title">{title}</div>
+        <div className="focus-sub">{subtitle}</div>
+      </div>
+      <div className="focus-section">
+        <div className="focus-section-kicker focus-kicker-target">Top targets</div>
+        <ul className="focus-list">
+          {topTargets.map((t) =>
+          <li key={t.code} className="focus-row" title={targetLabel(t.code)}>
+              <span className="focus-code focus-code-target">{t.code}</span>
+              <div className="focus-bar-wrap">
+                <div className="focus-bar focus-bar-target" style={{ width: `${t.count / targetMax * 100}%` }} />
+              </div>
+              <span className="focus-count">{t.count}</span>
+            </li>
+          )}
+        </ul>
+      </div>
+      <div className="focus-section">
+        <div className="focus-section-kicker focus-kicker-praise">Top praise</div>
+        <ul className="focus-list">
+          {topPraise.map((p) =>
+          <li key={p.code} className="focus-row" title={praiseLabel(p.code)}>
+              <span className="focus-code focus-code-praise">{p.code}</span>
+              <div className="focus-bar-wrap">
+                <div className="focus-bar focus-bar-praise" style={{ width: `${p.count / praiseMax * 100}%` }} />
+              </div>
+              <span className="focus-count">{p.count}</span>
+            </li>
+          )}
+        </ul>
+      </div>
+    </>);
+
+
+  if (onSelect) {
+    return <button type="button" className={className} onClick={onSelect}>{Inner}</button>;
+  }
+  return <div className={className}>{Inner}</div>;
 };
 
 // ── Big graph
@@ -428,73 +479,6 @@ const BigGraph = ({ subj, hover, setHover }) => {
 
         })()}
       </svg>
-    </div>);
-
-};
-
-const Heatmap = ({ heatHover, setHeatHover, setSubjectId, subjectId }) => {
-  return (
-    <div className="heat-wrap">
-      <div className="heat-grid" style={{ gridTemplateColumns: `140px repeat(${TARGET_CODES.length}, 1fr)` }}>
-        {/* header row */}
-        <div className="heat-cell heat-corner" />
-        {TARGET_CODES.map((t) =>
-        <div key={t.code} className="heat-head"
-        onMouseEnter={() => setHeatHover({ code: t.code, label: t.label, type: 'col' })}
-        onMouseLeave={() => setHeatHover(null)}>
-            {t.code}
-          </div>
-        )}
-        {/* rows */}
-        {SUBJECTS.map((s) =>
-        <React.Fragment key={s.id}>
-            <button className={`heat-rowhead ${subjectId === s.id ? 'active' : ''}`} onClick={() => setSubjectId(s.id)}>
-              {s.name}
-            </button>
-            {TARGET_CODES.map((t) => {
-            const v = (TARGETS_MATRIX[s.id] || {})[t.code] || 0;
-            const isHover = heatHover && heatHover.subj === s.id && heatHover.code === t.code;
-            return (
-              <div key={t.code} className={`heat-cell heat-v-${v} ${isHover ? 'heat-hover' : ''}`}
-              style={{ background: heatColor(v) }}
-              onMouseEnter={() => setHeatHover({ subj: s.id, subjName: s.name, code: t.code, label: t.label, value: v, type: 'cell' })}
-              onMouseLeave={() => setHeatHover(null)}>
-                  {v > 0 && <span className="heat-num">{v}</span>}
-                </div>);
-
-          })}
-          </React.Fragment>
-        )}
-      </div>
-      <div className="heat-tooltip-area">
-        {heatHover && heatHover.type === 'cell' &&
-        <div className="heat-tip">
-            <div className="heat-tip-code">{heatHover.code}</div>
-            <div>
-              <div className="heat-tip-label"><strong>{heatHover.subjName}</strong> — {heatHover.label}</div>
-              <div className="heat-tip-meta">Set in {heatHover.value} of 6 reporting periods</div>
-            </div>
-          </div>
-        }
-        {heatHover && heatHover.type === 'col' &&
-        <div className="heat-tip">
-            <div className="heat-tip-code">{heatHover.code}</div>
-            <div>
-              <div className="heat-tip-label">{heatHover.label}</div>
-              <div className="heat-tip-meta">Hover a cell to see how often this is set per subject</div>
-            </div>
-          </div>
-        }
-        {!heatHover &&
-        <div className="heat-tip heat-tip-muted">
-            <div className="heat-tip-code">?</div>
-            <div>
-              <div className="heat-tip-label">Hover any cell or column to see the full target description.</div>
-              <div className="heat-tip-meta">Click a subject name to filter the graph above.</div>
-            </div>
-          </div>
-        }
-      </div>
     </div>);
 
 };
