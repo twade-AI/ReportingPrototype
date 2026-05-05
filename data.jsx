@@ -27,7 +27,24 @@ const TICKETS = {
     { subject: 'House',  teacher: 'Mr Donnelly', note: 'Volunteered to set up the Founders\u2019 Day chapel.', date: '22 Apr' },
     { subject: 'Drama',  teacher: 'Miss Hollis', note: 'Helped a younger pupil rehearse their monologue.', date: '15 Apr' },
   ]},
+  purple: { count: 11, label: 'Skills Tickets', sub: 'Skills development',    color: '#7c3aed', recent: [
+    { subject: 'Geography',       teacher: 'Mr Whitford',   skill: 'Leadership',     note: 'Coordinated the group\u2019s data analysis on the GCSE coursework after a partner dropped out.', date: '25 Apr' },
+    { subject: 'Computer Science', teacher: 'Mr Okafor',    skill: 'Deep thinking',  note: 'Reasoned carefully through edge cases in the recursion task before writing any code.', date: '21 Apr' },
+    { subject: 'House',           teacher: 'Mr Donnelly',   skill: 'Teamwork',       note: 'Worked closely with Year 9 mentees in the run-up to mocks.', date: '20 Apr' },
+    { subject: 'Drama',           teacher: 'Miss Hollis',   skill: 'Creativity',     note: 'Brought an original staging idea to the ensemble piece that the group adopted.', date: '17 Apr' },
+    { subject: 'English',         teacher: 'Ms Patel',      skill: 'Reflection',     note: 'Self-assessed the unseen poetry draft with real honesty about what wasn\u2019t working.', date: '14 Apr' },
+    { subject: 'Maths',           teacher: 'Dr Ramirez',    skill: 'Task initiation', note: 'Started the Mechanics 2 paper unprompted ahead of the lesson.', date: '11 Apr' },
+    { subject: 'Robotics Club',   teacher: 'Mr Okafor',     skill: 'Enterprise',     note: 'Pitched and prototyped a new line-tracking sensor mount for the inter-house build.', date: '08 Apr' },
+    { subject: 'History',         teacher: 'Mr Donnelly',   skill: 'Communication',  note: 'Presented Cold War source analysis with clarity and confident pacing.', date: '03 Apr' },
+    { subject: 'Tutor time',      teacher: 'Mrs Carrington', skill: 'Organisation',  note: 'Came to tutorial with journal, planner and report annotations all prepared.', date: '01 Apr' },
+  ]},
 };
+
+// Skills tracked under the Skills (purple) ticket
+const SKILLS = [
+  'Organisation', 'Task initiation', 'Reflection', 'Creativity', 'Deep thinking',
+  'Leadership', 'Teamwork', 'Communication', 'Enterprise',
+];
 
 // Each subject carries:
 //   grades         — ATL (Attitude to Learning) in the classroom (R1–R6)
@@ -376,7 +393,7 @@ const TUTOR_REPORT = {
 };
 
 Object.assign(window, {
-  PUPIL, TICKETS, SUBJECTS, GRADE_VALUES, GRADE_LABELS, GRADE_FULL,
+  PUPIL, TICKETS, SKILLS, SUBJECTS, GRADE_VALUES, GRADE_LABELS, GRADE_FULL,
   TARGET_CODES, TARGETS_MATRIX, PRAISE_CODES, REPORTING_DETAILS,
   ATTENDANCE, TODO_ITEMS, FIXTURES, UPCOMING_STUDY, PUPIL_UPDATE,
   TUTOR_REPORT, TIMETABLE, SUBJECT_COLORS

@@ -111,7 +111,7 @@ const InterimScreen = ({ onNav }) => {
 
       {/* Tickets row */}
       <section className="tickets">
-        {['yellow','blue','green'].map(k => {
+        {['yellow','blue','green','purple'].map(k => {
           const t = TICKETS[k];
           const isActive = activeTicket === k;
           return (
@@ -144,7 +144,10 @@ const InterimScreen = ({ onNav }) => {
                 <div className="ticket-row-subj">{r.subject}</div>
                 <div className="ticket-row-teacher">{r.teacher}</div>
               </div>
-              <div className="ticket-row-note">"{r.note}"</div>
+              <div className="ticket-row-note">
+                {r.skill && <span className="ticket-skill" style={{background:`color-mix(in srgb, ${TICKETS[activeTicket].color} 14%, transparent)`, color: TICKETS[activeTicket].color}}>{r.skill}</span>}
+                "{r.note}"
+              </div>
               <div className="ticket-row-date">{r.date}</div>
             </li>
           ))}
