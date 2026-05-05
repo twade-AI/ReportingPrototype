@@ -27,7 +27,7 @@ const TICKETS = {
     { subject: 'House',  teacher: 'Mr Donnelly', note: 'Volunteered to set up the Founders\u2019 Day chapel.', date: '22 Apr' },
     { subject: 'Drama',  teacher: 'Miss Hollis', note: 'Helped a younger pupil rehearse their monologue.', date: '15 Apr' },
   ]},
-  purple: { count: 11, label: 'Skills Tickets', sub: 'Skills development',    color: '#7c3aed', recent: [
+  purple: { count: 11, label: 'Purple Tickets', sub: 'Skills development',    color: '#7c3aed', recent: [
     { subject: 'Geography',       teacher: 'Mr Whitford',   skill: 'Leadership',     note: 'Coordinated the group\u2019s data analysis on the GCSE coursework after a partner dropped out.', date: '25 Apr' },
     { subject: 'Computer Science', teacher: 'Mr Okafor',    skill: 'Deep thinking',  note: 'Reasoned carefully through edge cases in the recursion task before writing any code.', date: '21 Apr' },
     { subject: 'House',           teacher: 'Mr Donnelly',   skill: 'Teamwork',       note: 'Worked closely with Year 9 mentees in the run-up to mocks.', date: '20 Apr' },
